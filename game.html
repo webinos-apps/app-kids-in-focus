@@ -1,0 +1,93 @@
+<!--
+	This file is part of webinos project.
+	
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+	
+	http://www.apache.org/licenses/LICENSE-2.0
+	
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+-->
+<div id="gamebox">
+   <div class="menu">
+      <ul id="media">
+         <li class="button2">
+            <div id="textButton" onclick="showTextChat();"> Text </div>
+         </li>
+         <li class="disabled">
+            <div id="audioButton" onclick=""> Audio </div>
+         </li>
+         <li class="disabled">
+            <div id="videoButton" onclick=""> Video </div>
+         </li>
+      </ul>
+      <ul id="control">
+         <li id="endElem" class="button2">
+            <div id="endButton" onclick="confirmExitGame();"> Exit </div>
+         </li>
+         <li id="setElem" class="button2">
+            <div id="setButton" onclick="settings();"> Settings </div>
+         </li>
+         <li class="button2">
+            <div id="lockButton" onclick="lockGame();"> Lock </div>
+         </li>
+         <li id="newElem" class="button2">
+            <div id="newButton" onclick="newGame();"> New Game </div>
+         </li>
+      </ul>
+   </div>
+   <div id="deck-box" class="box">
+   </div>
+   <div id="play-box" class="box">
+      <div>
+         <div>
+            <div class="cardbox right">
+               <div id="myN" class="name">Player 1</div>
+               <div id="cardcontainer1" class="card">
+                  <div id="card1b" class="card-back">
+                     <img src="img/card.png" alt="card" width="220" height="370" />
+                  </div>
+                  <div id="card1" class="card-front">
+                     <div id="img1" class="picture"></div>
+                     <div id="cardName1" class="title">Barnsley</div>
+                  </div>
+               </div>
+               <div id="myCardsNo" class="cards-no"></div>
+            </div>
+         </div>
+         <div id="mid-box">
+            <div id="middle">
+               <div id="status">
+                  <div id="status-text"></div>
+                  <div id="cont-button"></div>
+               </div>
+               <div id="chat">
+                  <div id="chatBox"></div>
+                  <div id="chatText"></div>
+                  <div id="chatButton"></div>
+               </div>
+            </div>
+         </div>
+         <div>
+            <div class="cardbox left">
+               <div id="opponentN" class="name">Player 2</div>
+               <div id="cardcontainer2" class="card">
+                  <div id="card2b" class="card-back">
+                     <img src="img/card.png" alt="card" width="220" height="370" />
+                  </div>
+                  <div id="card2" class="card-front">
+                     <div id="img2" class="picture"></div>
+                     <div id="cardName2" class="title">Barnsley</div>
+                  </div>
+               </div>
+               <div id="opCardsNo" class="cards-no"></div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
