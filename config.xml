@@ -1,7 +1,7 @@
-<?xml version="0.0.1" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <widget xmlns       = "http://www.w3.org/ns/widgets"
         id          = "http://apps.webinos.org/app-kids-in-focus"
-        version     = "0.0.1"
+        version     = "0.0.2"
         height      = "768"
         width       = "1024"
         viewmodes   = "fullscreen">
@@ -11,19 +11,19 @@
   </name>
 
   <description>
-    This version v0.0.1 is for experimental use only and not suitable for end users.
+    This version v0.0.2 is for experimental use only and not suitable for end users.
   </description>
 
-  <author href = "http://webinos.org/" email = "weiguouk@gmail.com">
+  <author href = "http://webinos.org/" email = "webinosapp@gmail.com">
     The webinos project
   </author>
 
   <content type="text/html" src="index.html"/>
 
-  <icon src="kidsinfocus.png">
+  <icon src="kidsinfocus.png" />
 
   <license>
-  Copyright 2012 The Webinos project
+  Copyright 2012 The webinos project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
