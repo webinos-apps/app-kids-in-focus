@@ -5,7 +5,7 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<meta name="generator" content="JsDoc Toolkit" />
 		
-		<title>JsDoc Reference - gameStatus</title>
+		<title>JsDoc Reference - deckCards</title>
 
 		<style type="text/css">
 			/* default.css */
@@ -206,7 +206,7 @@ ul.inheritsList
 <!-- ============================== class title ============================ -->
 			<h1 class="classTitle">
 				
-				Class gameStatus
+				Class deckCards
 			</h1>
 
 <!-- ============================== class summary ========================== -->			
@@ -214,16 +214,16 @@ ul.inheritsList
 				
 				
 			
-				Represents the object game status
+				Represents the object Deck
 				
 				
-					<br /><i>Defined in: </i> <a href="../symbols/src/webinos_wp5_kids-in-focus_webinosTrumpsEngine.js.html">webinosTrumpsEngine.js</a>.
+					<br /><i>Defined in: </i> <a href="../symbols/src/webinos_trumps_engine.js.html">webinos_trumps_engine.js</a>.
 				
 			</p>
 
 <!-- ============================== constructor summary ==================== -->			
 			
-			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class gameStatus.">
+			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class deckCards.">
 				<caption>Class Summary</caption>
 				<thead>
 					<tr>
@@ -236,7 +236,7 @@ ul.inheritsList
 						<td class="attributes">&nbsp;</td>
 						<td class="nameDescription" >
 							<div class="fixedFont">
-								<b><a href="../symbols/gameStatus.html#constructor">gameStatus</a></b>()
+								<b><a href="../symbols/deckCards.html#constructor">deckCards</a></b>()
 							</div>
 							<div class="description"></div>
 						</td>
@@ -249,7 +249,7 @@ ul.inheritsList
 			
 				
 				
-				<table class="summaryTable" cellspacing="0" summary="A summary of the fields documented in the class gameStatus.">
+				<table class="summaryTable" cellspacing="0" summary="A summary of the fields documented in the class deckCards.">
 					<caption>Field Summary</caption>
 					<thead>
 						<tr>
@@ -263,79 +263,9 @@ ul.inheritsList
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
 								<div class="fixedFont">
-								<b><a href="../symbols/gameStatus.html#currentTurn">currentTurn</a></b>
+								<b><a href="../symbols/deckCards.html#data">data</a></b>
 								</div>
-								<div class="description">Is current player's turn</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont">
-								<b><a href="../symbols/gameStatus.html#deck">deck</a></b>
-								</div>
-								<div class="description">Game deck</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont">
-								<b><a href="../symbols/gameStatus.html#inputEnable">inputEnable</a></b>
-								</div>
-								<div class="description">Player input selection enable</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont">
-								<b><a href="../symbols/gameStatus.html#myCards">myCards</a></b>
-								</div>
-								<div class="description">Player's cards</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont">
-								<b><a href="../symbols/gameStatus.html#myContinue">myContinue</a></b>
-								</div>
-								<div class="description">Player continue clicked</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont">
-								<b><a href="../symbols/gameStatus.html#myCurrentCard">myCurrentCard</a></b>
-								</div>
-								<div class="description">Player current card</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont">
-								<b><a href="../symbols/gameStatus.html#opponentContinue">opponentContinue</a></b>
-								</div>
-								<div class="description">Opponent continue clicked</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont">
-								<b><a href="../symbols/gameStatus.html#opponentCurrentCard">opponentCurrentCard</a></b>
-								</div>
-								<div class="description">Opponent current card</div>
+								<div class="description">Deck cards information</div>
 							</td>
 						</tr>
 					
@@ -350,7 +280,7 @@ ul.inheritsList
 			
 				
 				
-				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class gameStatus.">
+				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class deckCards.">
 					<caption>Method Summary</caption>
 					<thead>
 						<tr>
@@ -363,9 +293,18 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/gameStatus.html#numOfMyCards">numOfMyCards</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/deckCards.html#getNumAtts">getNumAtts</a></b>()
 								</div>
-								<div class="description">Returns the number of the player's cards</div>
+								<div class="description">Return the number of attributes of a deck card</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/deckCards.html#numOfCards">numOfCards</a></b>()
+								</div>
+								<div class="description">Returns the number of the card in the deck</div>
 							</td>
 						</tr>
 					
@@ -386,7 +325,7 @@ ul.inheritsList
 				</div>
 				
 				<div class="fixedFont">
-						<b>gameStatus</b>()
+						<b>deckCards</b>()
 				</div>
 				
 				<div class="description">
@@ -414,169 +353,15 @@ ul.inheritsList
 					Field Detail
 				</div>
 				
-					<a name="currentTurn"> </a>
+					<a name="data"> </a>
 					<div class="fixedFont">
 					
-					<span class="light">{bool}</span>
-					<b>currentTurn</b>
+					
+					<b>data</b>
 					
 					</div>
 					<div class="description">
-						Is current player's turn
-						
-						
-					</div>
-					
-					
-
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="deck"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{<a href="../symbols/deckCards.html">deckCards</a>}</span>
-					<b>deck</b>
-					
-					</div>
-					<div class="description">
-						Game deck
-						
-						
-					</div>
-					
-					
-
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="inputEnable"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{bool}</span>
-					<b>inputEnable</b>
-					
-					</div>
-					<div class="description">
-						Player input selection enable
-						
-						
-					</div>
-					
-					
-
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="myCards"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{<a href="../symbols/_global_.html#myCards">myCards</a>}</span>
-					<b>myCards</b>
-					
-					</div>
-					<div class="description">
-						Player's cards
-						
-						
-					</div>
-					
-					
-
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="myContinue"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{bool}</span>
-					<b>myContinue</b>
-					
-					</div>
-					<div class="description">
-						Player continue clicked
-						
-						
-					</div>
-					
-					
-
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="myCurrentCard"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{int}</span>
-					<b>myCurrentCard</b>
-					
-					</div>
-					<div class="description">
-						Player current card
-						
-						
-					</div>
-					
-					
-
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="opponentContinue"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{bool}</span>
-					<b>opponentContinue</b>
-					
-					</div>
-					<div class="description">
-						Opponent continue clicked
-						
-						
-					</div>
-					
-					
-
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="opponentCurrentCard"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{int}</span>
-					<b>opponentCurrentCard</b>
-					
-					</div>
-					<div class="description">
-						Opponent current card
+						Deck cards information
 						
 						
 					</div>
@@ -598,15 +383,47 @@ ul.inheritsList
 					Method Detail
 				</div>
 				
-					<a name="numOfMyCards"> </a>
+					<a name="getNumAtts"> </a>
 					<div class="fixedFont">
 					
 					<span class="light">{int}</span>
-					<b>numOfMyCards</b>()
+					<b>getNumAtts</b>()
 					
 					</div>
 					<div class="description">
-						Returns the number of the player's cards
+						Return the number of attributes of a deck card
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{int}</span> numberOfAttributes</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="numOfCards"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{int}</span>
+					<b>numOfCards</b>()
+					
+					</div>
+					<div class="description">
+						Returns the number of the card in the deck
 						
 						
 					</div>
@@ -642,7 +459,7 @@ ul.inheritsList
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0 on Tue Mar 13 2012 13:10:45 GMT+0100 (CET)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0 on Thu Dec 06 2012 21:59:20 GMT-0000 (GMT)
 		</div>
 	</body>
 </html>

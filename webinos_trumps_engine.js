@@ -97,7 +97,7 @@ function updateUI()
 
 function play()
 {
-   //I put container for status information in game.html - kwlodarska 14.03.2012
+   //I put container for status information in game.html - kwlodarska 14.03.2012 i.e. webinos_trumps.html Wei Guo 06-12-2012
     gamet.started = true;
 	document.getElementById("cont-button").innerHTML = '<a id="continue" class="button" onClick="cont();">Continue</a>';
 	var newElem = document.getElementById("newElem");

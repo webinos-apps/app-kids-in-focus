@@ -14,12 +14,12 @@
 	limitations under the License.
  */
 /*
- * kidsinfocus.js
+ * kif.js
  *
  * The app Kids in Focus WRT side.
  *
  * Katarzyna Włodarska, Wei Guo, Andrea Longo, Alexander Futasz
- * 12-10-2012
+ * 06-12-2012
  */
 
 // Kasia's module starts here - reworked by kwlodarska 29.03
@@ -102,7 +102,7 @@ function openPopup() {
    form.appendChild(input);
    form.appendChild(subDiv);
 
-   //popup container & positioning layers
+   // Popup container & positioning layers
    var insideDiv = document.createElement('div');
    insideDiv.className = 'popup-positioning';
    insideDiv.appendChild(form);
@@ -150,7 +150,7 @@ function mark(attr) {
 	 //changed without using jquery - A. Longo 19.03.12
 	if((attr == null || gamet.currentTurn) && !gamet.newGameProposal)
 		{
-		   for(i=1;i<=5;i++) {
+		   for(var i=1; i<=5; i++) {
 			removeClass(document.getElementById('c1attr'+i),'marked');
 		   }
 		addClass(document.getElementById(attr),'marked');
@@ -516,7 +516,7 @@ var start = function(myName) { // former ready function
 					{
 						if(event.payload.data != null)
 						{
-							//I moved status div to game.html - kwlodarska 14.03.2012
+							//I moved status div to game.html - kwlodarska 14.03.2012 i.e. webinos_trumps.html Wei Guo 06-12-2012
 							gamet.started = true;
 							document.getElementById("cont-button").innerHTML = '<a id="continue" class="button" onClick="cont();">Continue</a>';
 							gamet.currentTurn = event.payload.data;
@@ -815,7 +815,7 @@ function loadGameUI(){
 				document.getElementById("status-text").innerHTML = "Waiting for the dealer...";
 			}
 	}
-	ajaxRequest.open("GET", "game.html", true);
+	ajaxRequest.open("GET", "webinos_trumps.html", true);
 	ajaxRequest.send(null);
 };
 
@@ -844,7 +844,7 @@ function choseDeck(){
 			document.getElementById("deck-box").innerHTML = html;
 		}
 	}
-	ajaxRequest.open("GET", "decks.js", true);
+	ajaxRequest.open("GET", "webinos_trumps_decks.js", true);
 	ajaxRequest.send(null);
 };
 
@@ -870,7 +870,7 @@ function loadDeck(i)
 			init();
 		}
 	};
-	ajaxRequest.open("GET", "decks/"+decks[i].url , true);
+	ajaxRequest.open("GET", "webinos_trumps_decks/"+decks[i].url , true);
 	ajaxRequest.send(null);
 	document.getElementById("status-text").innerHTML = 'Click start to Play';
 	document.getElementById("cont-button").innerHTML ='<a href="#" id="play" class="button" onClick="play();">Start</a>';
