@@ -1,24 +1,23 @@
 <!DOCTYPE html>
 <!--
 	This file is part of webinos project.
-	
+
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
 	You may obtain a copy of the License at
-	
+
 	http://www.apache.org/licenses/LICENSE-2.0
-	
+
 	Unless required by applicable law or agreed to in writing, software
 	distributed under the License is distributed on an "AS IS" BASIS,
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 	See the License for the specific language governing permissions and
 	limitations under the License.
-	
+
 	Copyright 2012  Samsung Electronics (UK), Antenna Software, University of Catania
 
-	Kids in Focus
-	index.html
-	Wei Guo, Katarzyna Włodarska, Michal Tomasz Kozak, Andrea Longo
+	Kids in Focus index.html
+	Wei Guo, Katarzyna Włodarska, Michał T. Kozak, Andrea Longo
 	06-12-2012
 -->
 <html>
@@ -34,7 +33,10 @@
    <header>
       <h1>Kids In Focus</h1>
    </header>
+
    <div id="content">
+      <div id="myName2"></div>
+
       <div id="home">
          <div id="leftbox" class="left box">
             <p class="header">Your online contacts:</p>
@@ -49,12 +51,176 @@
             </ul>
          </div>
       </div>
-      <div id="game">
 
+      <div id="game">
+		<div id="gamebox">
+		   <div class="menu">
+			  <ul id="media">
+				 <li class="button2">
+					<div id="textButton"> Text </div>
+				 </li>
+				 <li class="disabled">
+					<div id="audioButton"> Audio </div>
+				 </li>
+				 <li class="disabled">
+					<div id="videoButton"> Video </div>
+				 </li>
+			  </ul>
+			  <ul id="control">
+				 <li id="endElem" class="button2">
+					<div id="endButton"> Exit </div>
+				 </li>
+				 <li id="setElem" class="button2">
+					<div id="setButton"> Settings </div>
+				 </li>
+				 <li class="button2">
+					<div id="lockButton"> Lock </div>
+				 </li>
+				 <li id="newElem" class="button2">
+					<div id="newButton"> New Game </div>
+				 </li>
+			  </ul>
+		   </div>
+		   <div id="deck-box" class="box">
+		   </div>
+		   <div id="play-box" class="box">
+			  <div>
+				 <div>
+					<div class="cardbox right">
+					   <div id="myName" class="name">Player 1</div>
+					   <div id="cardcontainer1" class="card">
+						  <div id="card1b" class="card-back">
+							 <img src="img/card.png" alt="card" width="220" height="370" />
+						  </div>
+						  <div id="card1" class="card-front">
+							 <div id="img1" class="picture"></div>
+							 <div id="cardName1" class="title">Title</div>
+							 <div id="cardAttributes1" class="cardAttributes"></div>
+						  </div>
+					   </div>
+					   <div id="myCardsNo" class="cards-no"></div>
+					</div>
+				 </div>
+				 <div id="mid-box">
+					<div id="middle">
+					   <div id="status">
+						  <div id="status-text"></div>
+						  <div id="cont-button"></div>
+					   </div>
+					   <div id="chat">
+						  <div id="chatBox"></div>
+						  <div id="chatText"><input type="text" id="chatInput"></div>
+						  <div id="chatButton"><a class="button">Send</a></div>
+					   </div>
+					</div>
+				 </div>
+				 <div>
+					<div class="cardbox left">
+					   <div id="opponentName" class="name">Player 2</div>
+					   <div id="cardcontainer2" class="card">
+						  <div id="card2b" class="card-back">
+							 <img src="img/card.png" alt="card" width="220" height="370" />
+						  </div>
+						  <div id="card2" class="card-front">
+							 <div id="img2" class="picture"></div>
+							 <div id="cardName2" class="title">Title</div>
+							 <div id="cardAttributes2" class="cardAttributes"></div>
+						  </div>
+					   </div>
+					   <div id="opCardsNo" class="cards-no"></div>
+					</div>
+				 </div>
+			  </div>
+		   </div>
+		</div>
       </div>
-      <!-- added Settings div A. Longo -->
-      <div id="sett"></div>
+
+		<div id="sett">
+			<div class="box">
+				<div class="group">
+					<p class="header">Chat Settings:</p>
+					<p class="options">Font Color:
+						<select id="mcolor" name="color">
+							<option value="black">Black</option>
+							<option value="red">Red</option>
+							<option value="green">Green</option>
+							<option value="blue">Blue</option>
+						</select>
+					</p>
+					<p class="options">Font Style:
+						<select id="mfamily" name="style">
+							<option value="sans-serif">Dafault</option>
+							<!--<option value="ANaRcHy">ANaRcHy</option>-->
+							<option value="AmadeusRegular">AmadeusRegular</option>
+							<option value="SpecialEliteRegular">SpecialEliteRegular</option>
+							<option value="ScratchmybackRegular">ScratchmybackRegular</option>
+						</select>
+					</p>
+					<p class="options">Font Size:
+						<select id="msize" name="size">
+							<option value="100%">100%</option>
+							<option value="120%">120%</option>
+							<option value="150%">150%</option>
+						</select>
+					</p>
+				</div>
+				<div class="group">
+					<p class="header">Opponent Chat:</p>
+					<p class="options">Font Color:
+						<select id="ocolor" name="color">
+							<option value="black">Black</option>
+							<option value="red">Red</option>
+							<option value="green">Green</option>
+							<option value="blue">Blue</option>
+						</select>
+					</p>
+					<p class="options">Font Style:
+						<select id="ofamily" name="style">
+							<option value="sans-serif">Dafault</option>
+							<!--<option value="ANaRcHy">ANaRcHy</option>-->
+							<option value="AmadeusRegular">AmadeusRegular</option>
+							<option value="SpecialEliteRegular">SpecialEliteRegular</option>
+							<option value="ScratchmybackRegular">ScratchmybackRegular</option>
+						</select>
+					</p>
+					<p class="options">Font Size:
+						<select id="osize" name="size">
+							<option value="100%">100%</option>
+							<option value="120%">120%</option>
+							<option value="150%">150%</option>
+						</select>
+					</p>
+				</div>
+
+				<div class="group">
+					<p class="header">Policy Settings: </p>
+					<p class="options">Status:
+						<select id="mstatus" name="status">
+							<option value="available">Available</option>
+							<option value="offline">Invisible</option>
+						</select>
+					</p>
+				</div>
+				<div class="group">
+					<a class="button red" id="cancelsettings" >Cancel</a>
+					<a class="button" id="savesettings">Save</a>
+				</div>
+			</div>
+		</div>
+
    </div>
+   <div id="opacityBack" class="opacity-background"></div>
+	<div id="popup" class="popup">
+		<form>
+			<p>Enter password to unlock game options.</p>
+			<input type="password" id="password">
+			<div class="popup-input">
+				<input type="button" class="button" value="Unlock" id="popunlock">
+				<input type="button" class="button red" value="Cancel" id="popcancel">
+			</div>
+		</form>
+	</div>
+
    <footer>
       <img src="img/webinos.png" alt="webinos" width="104" height="40" />
    </footer>

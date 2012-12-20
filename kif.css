@@ -1,12 +1,12 @@
 /*
 	This file is part of webinos project.
-	
+
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
 	You may obtain a copy of the License at
-	
+
 	http://www.apache.org/licenses/LICENSE-2.0
-	
+
 	Unless required by applicable law or agreed to in writing, software
 	distributed under the License is distributed on an "AS IS" BASIS,
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,16 +17,49 @@
 /* general */
 html {
    height: 100%;
+   font-size: 15px;
 }
 
 html * {
    box-sizing: border-box;
    -moz-box-sizing: border-box;
-   font-size: 15px;
    margin:0;
    padding:0;
    overflow:hidden;
    -webkit-appearance:none;
+}
+
+@font-face {
+    font-family: 'SpecialEliteRegular';
+    src: url('fonts/SpecialElite-webfont.eot');
+    src: url('fonts/SpecialElite-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/SpecialElite-webfont.woff') format('woff'),
+         url('fonts/SpecialElite-webfont.ttf') format('truetype'),
+         url('fonts/SpecialElite-webfont.svg#SpecialEliteRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ScratchmybackRegular';
+    src: url('fonts/SCRATCHM-webfont.eot');
+    src: url('fonts/SCRATCHM-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/SCRATCHM-webfont.woff') format('woff'),
+         url('fonts/SCRATCHM-webfont.ttf') format('truetype'),
+         url('fonts/SCRATCHM-webfont.svg#ScratchmybackRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'AmadeusRegular';
+    src: url('fonts/Amadeus-webfont.eot');
+    src: url('fonts/Amadeus-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/Amadeus-webfont.woff') format('woff'),
+         url('fonts/Amadeus-webfont.ttf') format('truetype'),
+         url('fonts/Amadeus-webfont.svg#AmadeusRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
 }
 
 body {
@@ -142,6 +175,14 @@ header h1 {
    overflow: visible;
 }
 
+#myName2 {
+	position: absolute;
+	top: 60px;
+	left: 40px;
+	color: #61C314;
+	font-size: 90%;
+}
+
 #home {
    width: 100%;
    height: 100%;
@@ -213,8 +254,11 @@ header h1 {
    text-shadow: 0 1px 1px #ff6666;
 }
 
-#game {
+#game, #sett, #opacityBack, #popup {
    display: none;
+}
+
+#game {
    z-index: 5;
    width: 100%;
    height: 100%;
@@ -373,6 +417,9 @@ header h1 {
    color: #3a362d;
    text-shadow: 0 1px 1px #fff;
 }
+#game .name.active {
+   color: #0084FF;
+}
 
 #game .cards-no {
    font-weight: bold;
@@ -450,24 +497,27 @@ header h1 {
    border-radius: 10px;
 }
 
-#game .line {
+#cardAttributes1 > div {
 	cursor:pointer; cursor:hand;
+}
+#cardAttributes1.inactive > div {
+	cursor:default;
 }
 
 #game .lineChosen:hover {
    color: #0062a0;
 }
 
-#game .card-front .marked, #game .card-front .marked:hover {
+.cardAttributes .marked, .cardAttributes .marked:hover {
    background-color: #3b99d7;
    color: #fff;
 }
 
-#game .card-front > div > span {
+.cardAttributes span {
    font-size: 12px;
 }
 
-#game .card-front > div > span:nth-child(2) {
+.cardAttributes span:nth-child(2) {
    float: right;
 }
 
@@ -491,6 +541,9 @@ header h1 {
    padding-top: 30px;
    height: 50%;
 }
+#game #middle #status-text.black { color: #000000; }
+#game #middle #status-text.winColor { color: #295505; }
+#game #middle #status-text.loseColor { color: #cb2929; }
 
 #game #middle #cont-button {
    height: 50%;
@@ -506,14 +559,6 @@ header h1 {
    float: none;
    width: 100px;
    line-height:30px;
-}
-
-#game #middle #status-text.winColor {
-   color: #295505;
-}
-
-#game #middle #status-text.loseColor {
-   color: #cb2929;
 }
 
 #sett .box {
@@ -560,12 +605,6 @@ header h1 {
    margin: 0 5px;
 }
 
-/*new font style A. Longo */
-@font-face {
-    font-family: "ANaRcHy";
-    src: url(ANaRcHy.ttf);
-}
-
 #game #chat {
    width: 100%;
    height: 50%;
@@ -588,6 +627,7 @@ header h1 {
    padding: 5px;
    overflow: auto;
    color: #000;
+   font-size: 18px;
 }
 
 #game #chat #chatText {
@@ -628,7 +668,7 @@ header h1 {
    border-bottom-left-radius: 0px;
 }
 
-#chatTx {
+#chatInput {
 	outline: none;
 }
 
@@ -661,24 +701,14 @@ footer img {
    opacity: .7;
 }
 
-.popup-background {
-   display: table;
-   height: 100%;
-   width: 100%;
-   position: absolute;
-   top: 0px;
-   left: 0px;
-   z-index: 998;
-}
-
-.popup-positioning {
-   display:table-cell;
-   vertical-align:middle;
-}
-
 .popup {
    width: 500px;
    height: 300px;
+   position: absolute;
+   left: 50%;
+   top: 50%;
+   margin-left: -250px !important;
+   margin-top: -150px !important;
    z-index: 999;
    background: #ffffd6; /* Old browsers */
    background: -moz-linear-gradient(top, #ffffd6 0%, #fffff0 46%, #fffff0 54%, #ffffd6 100%); /* FF3.6+ */
@@ -693,7 +723,7 @@ footer img {
    -webkit-border-radius: 10px;
    -moz-border-radius: 10px;
    border-radius: 10px;
-   display:table;
+   display:none; /*table*/
    margin:auto;
 }
 
@@ -726,6 +756,8 @@ footer img {
    border-radius: 10px;
    border: 1px solid #978863;
    height: 30px;
+   outline: none;
+   padding-left: 10px;
 }
 
 .popup-input {

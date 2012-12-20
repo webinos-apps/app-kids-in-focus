@@ -1,12 +1,12 @@
 /*
 	This file is part of webinos project.
-	
+
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
 	You may obtain a copy of the License at
-	
+
 	http://www.apache.org/licenses/LICENSE-2.0
-	
+
 	Unless required by applicable law or agreed to in writing, software
 	distributed under the License is distributed on an "AS IS" BASIS,
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,7 @@
  *	Initializes the game
  */
 
-function init(){
+function gameInit(){
 	gamet = new gameStatus();
 };
 
@@ -36,20 +36,18 @@ function newGameAccepted(inviter){
 	gamet.newGameProposal = false;
 	if(!inviter)
 		sendMsg('newGameAccepted',null);
-	for (i = 1; i<= gamet.deck.getNumAtts(); i++)
-	{
-		document.getElementById("card1").removeChild(document.getElementById('c1attr'+i));
-		document.getElementById("card2").removeChild(document.getElementById('c2attr'+i));
-	}
+	//clear card's attributes
+	kifElements.card1attributes.innerHTML = '';
+	kifElements.card2attributes.innerHTML = '';
 	//gamet = null;
 	switchUICard("1", "b", "");
 
-	if(useMyDeck)
+	if(kif.useMyDeck)
 		choseDeck();
 	else
 		{
-		document.getElementById("status-text").innerHTML = "<p>New Game Accepted!</p><p>Waiting for the dealer...</p>";
-		document.getElementById("cont-button").innerHTML = '';
+		setStatusMessage("<p>New Game Accepted!</p><p>Waiting for the dealer...</p>");
+		setContButton('empty');
 		}
 
 };
@@ -72,19 +70,19 @@ function newGameRefused()
 
 function updateUI()
 {
-	//I divided carts and status informations - kwlodarska 14.03.2012
-	//I changed and commented jquery code - A. Longo 19.03.2012
-	document.getElementById("myCardsNo").innerHTML = 'Cards: '+ gamet.numOfMyCards();
-	document.getElementById("opCardsNo").innerHTML = 'Cards: '+ (gamet.deck.numOfCards() - gamet.numOfMyCards());
+	kifElements.myCardsNo.innerHTML = 'Cards: '+ gamet.numOfMyCards();
+	kifElements.opCardsNo.innerHTML = 'Cards: '+ (gamet.deck.numOfCards() - gamet.numOfMyCards());
 	   if(gamet.currentTurn == true) {
-	      document.getElementById("status-text").innerHTML = 'Your turn!';
-	      document.getElementById("myN").style.color = '#004c7c';
-	      document.getElementById("opponentN").style.color = '#3A362D';
+	      setStatusMessage('Your turn!');
+	      kifElements.myName.className = 'name active';
+	      kifElements.opponentName.className = 'name';
+	      kifElements.card1attributes.className = 'cardAttributes';
 	      //$("div.line").toggleClass('lineChosen', true);
 	   } else {
-	      document.getElementById("status-text").innerHTML = oName + "'s turn!";
-	      document.getElementById("opponentN").style.color = '#004c7c';
-	      document.getElementById("myN").style.color = '#3A362D';
+	      setStatusMessage(kif.oName + "'s turn!");
+	      kifElements.myName.className = 'name';
+	      kifElements.opponentName.className = 'name active';
+	      kifElements.card1attributes.className = 'cardAttributes inactive';
 	      //$("div.line").toggleClass('lineChosen', false);
 	   }
 };
@@ -97,16 +95,9 @@ function updateUI()
 
 function play()
 {
-   //I put container for status information in game.html - kwlodarska 14.03.2012 i.e. webinos_trumps.html Wei Guo 06-12-2012
     gamet.started = true;
-	document.getElementById("cont-button").innerHTML = '<a id="continue" class="button" onClick="cont();">Continue</a>';
-	var newElem = document.getElementById("newElem");
-	var newButton = document.getElementById("newButton");
-	newElem.removeAttribute('class');
-	newButton.setAttribute('onClick', 'newGame(); return false;');
-
-	var endElem = document.getElementById("endElem");
-	endElem.removeAttribute('class');
+	setContButton('continue');
+	kifElements.newButton.setAttribute('onClick', 'newGame(); return false;');
 
 	rnd = 1 + (Math.floor(Math.random()*2));
 	if(rnd === 1)
@@ -143,12 +134,12 @@ function evaluateAttr(selection)
 		gamet.currentTurn = true;
 		gamet.myCards.push(gamet.myCurrentCard);
 		gamet.myCards.push(gamet.opponentCurrentCard);
- 		document.getElementById("status-text").innerHTML = 'You win';
+ 		setStatusMessage('You win');
 	}
 	else
 	{
 		gamet.currentTurn = false;
-		document.getElementById("status-text").innerHTML = 'You lose';
+		setStatusMessage('You lose');
 	}
 
 	setTimeout("nextTurn()",3000);
@@ -171,7 +162,8 @@ function lineChosen(line)
  */
 
 function randOrd(){
-	return (Math.round(Math.random())-0.5); };
+	return (Math.round(Math.random())-0.5);
+};
 
 /**
  *	Starts the next turn of the game
@@ -183,23 +175,18 @@ function nextTurn()
 	gamet.inputEnable = true;
 	gamet.sel = null;
 	if(gamet.currentTurn)
-		document.getElementById("cont-button").innerHTML = '<a id="continue" class="button" onClick="cont();">Continue</a>';
+		setContButton('continue');
 	else
-		document.getElementById("cont-button").innerHTML = '';
+		setContButton('empty');
 
 	if(gamet.numOfMyCards() === 0)
 		{
-		//I changes alert into status information - kwlodarska 14.03.2012
-		document.getElementById("status-text").innerHTML = 'LOSER';
-      document.getElementById("status-text").className = 'loseColor';
-		//document.getElementById("status").style.color = '#cb2929';
+		setStatusMessage('LOSER', 'loseColor');
 		setTimeout("anotherGame()",3000);
 		}
 	else if(gamet.numOfMyCards() === gamet.deck.numOfCards())
 		{
-		//I changes alert into status information - kwlodarska 14.03.2012
-		document.getElementById("status-text").innerHTML = 'WINNER';
-      document.getElementById("status-text").className = 'winColor';
+		setStatusMessage('WINNER', 'winColor');
 		setTimeout("anotherGame()",3000);
 		}
 	else
@@ -257,13 +244,13 @@ function switchUICard(player, show, hide, flip)
 {
 	if(player == 2) {
 		if(flip) {
-			document.getElementById("cardcontainer2").className += " flip-animate";
+			kifElements.cardContainer2.className += " flip-animate";
 		} else {
-			var flipClassArr = document.getElementById("cardcontainer2").className.split(" ");
+			var flipClassArr = kifElements.cardContainer2.className.split(" ");
 			var flipClassIndex = flipClassArr.indexOf("flip-animate");
 			if(flipClassIndex != -1) {
 				flipClassArr.splice(flipClassIndex,1);
-				document.getElementById("cardcontainer2").className = flipClassArr.join(" ");
+				kifElements.cardContainer2.className = flipClassArr.join(" ");
 			}
 		}
 	}
@@ -280,7 +267,7 @@ function switchUICard(player, show, hide, flip)
 function myCards(deck)
 {
 	var myCards = new Array();
-	if(useMyDeck)
+	if(kif.useMyDeck)
 	{
 		var opponentCards = new Array();
 		for(i=1; i<=deck.data.length; i++)
@@ -332,7 +319,7 @@ var deckCards = function(){
 	/**
 	 *	Deck cards information
 	 */
-	this.data = cardData;
+	this.data = kif.cardData;
 	this.attributes = initializeAttributes(this.data);
 	/**
 	 *	Returns the number of the card in the deck
