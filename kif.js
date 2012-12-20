@@ -1,12 +1,12 @@
 /*
 	This file is part of webinos project.
-	
+
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
 	You may obtain a copy of the License at
-	
+
 	http://www.apache.org/licenses/LICENSE-2.0
-	
+
 	Unless required by applicable law or agreed to in writing, software
 	distributed under the License is distributed on an "AS IS" BASIS,
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,150 +18,103 @@
  *
  * The app Kids in Focus WRT side.
  *
- * Katarzyna Włodarska, Wei Guo, Andrea Longo, Alexander Futasz
- * 06-12-2012
+ * Katarzyna Włodarska, Wei Guo, Andrea Longo, Alexander Futasz, Michał T. Kozak
+ * 20-12-2012
  */
 
-// Kasia's module starts here - reworked by kwlodarska 29.03
 
-/* lock/unlock play screen */
+/* GLOBALS */
 
-function showTextChat() {
-   document.getElementById("chat").style.display = 'table-row';
-   document.getElementById("textButton").setAttribute('onClick', 'hideTextChat();');
-   //added to remove the incoming message notification A. Longo 30.04
-   document.getElementById('textButton').style.border = 'none';
-}
 
-function hideTextChat() {
-   document.getElementById("chat").style.display = 'none';
-   document.getElementById("textButton").setAttribute('onClick', 'showTextChat();');
-}
+var kif = {}; //this will hold other variables to avoid global namespace pollution
+var kifElements = {}; //this will hold html elements so we can avoid excessive DOM search
 
-function lockGame() {
-   var newElem = document.getElementById("newElem");
-   newElem.className = 'disabled';
+// Set initial values
+kif.users = [];
+kif.useMyDeck = false;
 
-   var newButton = document.getElementById("newButton");
-   newButton.removeAttribute('onClick');
+kif.settings = {};
+kif.settings.predefined = {
+	color: "black",
+	fontFamily: "sans-serif",
+	fontSize: "100%"
+};
+kif.settings.opponent = {};
+kif.settings.mine = {};
+//we can't copy the whole object, because they would be tied together;
+//possible TODO: add object cloning function (but right now this is enough)
+kif.settings.opponent.color = kif.settings.mine.color = kif.settings.predefined.color;
+kif.settings.opponent.fontFamily = kif.settings.mine.fontFamily = kif.settings.predefined.fontFamily;
+kif.settings.opponent.fontSize = kif.settings.mine.fontSize = kif.settings.predefined.fontSize;
 
-   var lockButton = document.getElementById("lockButton");
-   lockButton.innerHTML = "Unlock";
-   lockButton.setAttribute('onClick', 'openPopup(); return false;');
+kif.invisible = false;
 
-   var endElem = document.getElementById("endElem");
-   endElem.className = 'disabled';
 
-   var endButton = document.getElementById("endButton");
-   endButton.removeAttribute('onClick');
+/* GENERAL USE functions */
+
+//TODO: I would opt for using indexOf instead of RegExp's
+function hasClass(ele,cls) {
+	return ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
 };
 
-function closePopup() {
-   var opacityBack = document.getElementById("opacityBack");
-   opacityBack.parentNode.removeChild(opacityBack);
-
-   var popBack = document.getElementById("popBack");
-   popBack.parentNode.removeChild(popBack);
-}
-
-function openPopup() {
-   var parent = document.getElementById("content");
-
-   //semi-transparent background layer
-   var opacityBack = document.createElement('div');
-   opacityBack.setAttribute('id','opacityBack');
-   opacityBack.className = 'opacity-background';
-   parent.appendChild(opacityBack);
-
-   var paragraph = document.createElement('p');
-   paragraph.appendChild(document.createTextNode('Enter password to unlock game options.'));
-
-   var input = document.createElement('input');
-   input.setAttribute('type','password');
-   input.setAttribute('id','password');
-
-   var submit = document.createElement('input');
-   submit.className = 'button';
-   submit.setAttribute('type','submit');
-   submit.setAttribute('value','Unlock');
-   submit.setAttribute('onClick', 'unlockGame(); return false;');
-
-   var cancel = document.createElement('input');
-   cancel.className = 'button red';
-   cancel.setAttribute('type','submit');
-   cancel.setAttribute('value','Cancel');
-   cancel.setAttribute('onClick', 'closePopup(); return false;');
-
-   var subDiv = document.createElement('div');
-   subDiv.className = 'popup-input';
-   subDiv.appendChild(cancel);
-   subDiv.appendChild(submit);
-
-   var form = document.createElement('form');
-   form.appendChild(paragraph);
-   form.appendChild(input);
-   form.appendChild(subDiv);
-
-   // Popup container & positioning layers
-   var insideDiv = document.createElement('div');
-   insideDiv.className = 'popup-positioning';
-   insideDiv.appendChild(form);
-
-   var popup = document.createElement('div');
-   popup.className = 'popup';
-   popup.appendChild(insideDiv);
-
-   var outsideDiv = document.createElement('div');
-   outsideDiv.className = 'popup-positioning';
-   outsideDiv.appendChild(popup);
-
-   var popBack = document.createElement('div');
-   popBack.setAttribute('id','popBack');
-   popBack.className = 'popup-background';
-   popBack.appendChild(outsideDiv);
-
-   parent.appendChild(popBack);
-}
-
-function unlockGame() {
-   var newElem = document.getElementById("newElem");
-   var newButton = document.getElementById("newButton");
-   newElem.className = "button2";
-   newButton.setAttribute('onClick', 'newGame(); return false;');
-
-   var lockButton = document.getElementById("lockButton");
-   lockButton.setAttribute('onClick', 'lockGame(); return false;');
-   lockButton.innerHTML = "Lock";
-
-   var endElem = document.getElementById("endElem");
-   var endButton = document.getElementById("endButton");
-   endElem.className = "button2";
-   endButton.setAttribute('onClick', 'exitGame(); return false;');
-
-   var opacityBack = document.getElementById("opacityBack");
-   opacityBack.parentNode.removeChild(opacityBack);
-
-   var popBack = document.getElementById("popBack");
-   popBack.parentNode.removeChild(popBack);
+function addClass(ele,cls) {
+	if(ele != null) {
+		if (!hasClass(ele,cls)) ele.className += " "+cls;
+	}
 };
 
-// mark option
-function mark(attr) {
-	 //changed without using jquery - A. Longo 19.03.12
-	if((attr == null || gamet.currentTurn) && !gamet.newGameProposal)
-		{
-		   for(var i=1; i<=5; i++) {
-			removeClass(document.getElementById('c1attr'+i),'marked');
-		   }
-		addClass(document.getElementById(attr),'marked');
+function removeClass(ele,cls) {
+	if(ele != null) {
+		if (hasClass(ele,cls)) {
+			var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
+			ele.className=ele.className.replace(reg,' ');
 		}
+	}
 };
 
-// Kasia's module ends here
+
+/* functions creating and dispatching WEBINOS EVENTS */
 
 
-// Notifies listeners when the DOM finished parsing (while images and css may still load)
-// Equivalent to jquery's ready()
+function sendStatus(type, engaged) {
+	var callback = {};
+	var ev = eventAPIToUse.createWebinosEvent(type);
+	ev.payload = {
+		type: type,
+		user: kif.myName
+	};
+	if(engaged) ev.payload.status = kif.engaged;
+	ev.dispatchWebinosEvent(callback);
+};
+
+function sendMsg(msgType, msgData) {
+	var callback = {};
+   	var ev = eventAPIToUse.createWebinosEvent();
+   	ev.payload = {
+		type: msgType,
+		sender: kif.myName,
+		receiver: kif.oName,
+		data: msgData
+	};
+   	ev.dispatchWebinosEvent(callback);
+};
+
+function sendInvitation(type, inviter, invitee) {
+	var callback = {};
+   	var ev = eventAPIToUse.createWebinosEvent();
+   	ev.payload = {
+		type: type,
+		inviter: inviter,
+		invitee: invitee
+	};
+   	ev.dispatchWebinosEvent(callback);
+}
+
+
+/* Equivalent to jquery's ready()
+ * Notifies listeners when the DOM finished parsing (while images and css may still load) */
+
+
 (function(){
 	var readyListener = [];
 
@@ -179,20 +132,21 @@ function mark(attr) {
 	if (document.readyState === "complete") {
 		// Handle it asynchronously to allow scripts the opportunity to delay ready
 		return setTimeout(loaded, 1);
-	}
+	};
 
 	if (document.addEventListener) {
 		document.addEventListener("DOMContentLoaded", loaded, false);
 
 		// A fallback to window.onload, that will always work
 		window.addEventListener("load", loaded, false);
-	}
+	};
 
 	// Call this to register your DOM ready listener function
 	ready = function(listener) {
 		readyListener.push(listener);
 	};
 })();
+
 
 // function added by Polito
 // this is a workaround. In the future, in multi-PZH scenarios, the plan is to obtain the userID from the platform.
@@ -201,1000 +155,885 @@ ready(function() {
 	webinos.ServiceDiscovery.findServices(new ServiceType('http://webinos.org/api/events'),
 		{
 		onFound: function(service){
-			var listenerID;
 			eventAPIToUse = service;
-			unavailableNames = [];
-			myName = webinos.messageHandler.getOwnId();
+			kif.unavailableNames = [];
+			kif.myName = webinos.messageHandler.getOwnId();
 
-			listenerID = eventAPIToUse.addWebinosEventListener(function(event){
+			var listenerID = eventAPIToUse.addWebinosEventListener(function(event){
 				if (event.payload.type === 'nameResponse') {
-					unavailableNames.push(event.payload.user);
+					kif.unavailableNames.push(event.payload.user);
 				}
 			});
 
-			var callback = {};
-			var ev = eventAPIToUse.createWebinosEvent('nameQuery');
-			var evLoad = {};
-			evLoad.type = 'nameQuery';
-			evLoad.user = myName;
-			ev.payload = evLoad;
-			ev.dispatchWebinosEvent(callback);
+			sendStatus('nameQuery');
 
-			setTimeout(nameInput, 3000);
-
-			function nameInput() {
-				myName = prompt("please, insert your name");
-
-				while (myName === '' || unavailableNames.indexOf(myName) !== -1) {
-					myName = prompt("please insert a different name");
-				}
-
-				eventAPIToUse.removeWebinosEventListener(listenerID);
-
-				if (myName !== null && myName !== undefined && myName !== '') {
-					start(myName);
-				}
-				else {
-					alert('username is missing');
-				}
-			}
+			setTimeout(function() {nameInput(listenerID)}, 3000); //TODO check why there's a timeout here
 		}
 	});
+
+	//rip out of dom elements, that we will frequently use later
+	kifElements.status = document.getElementById("status-text");
+	kifElements.contButton = document.getElementById("cont-button");
+	kifElements.onlineContacts = document.getElementById("onlineContacts");
+	kifElements.liveInvitations = document.getElementById("liveInvitations");
+
+	kifElements.home = document.getElementById("home");
+	kifElements.game = document.getElementById("game");
+	kifElements.settings = document.getElementById("sett");
+	kifElements.password = document.getElementById("password");
+
+	kifElements.homeScreenName = document.getElementById("myName2");
+
+	kifElements.newElem = document.getElementById("newElem");
+	kifElements.newButton = document.getElementById("newButton");
+	kifElements.endElem = document.getElementById("endElem");
+	kifElements.endButton = document.getElementById("endButton");
+	kifElements.lockButton = document.getElementById("lockButton");
+	kifElements.setButton = document.getElementById("setButton");
+
+	kifElements.opacityBack = document.getElementById("opacityBack");
+	kifElements.popup = document.getElementById("popup");
+
+	kifElements.myName = document.getElementById("myName");
+	kifElements.opponentName = document.getElementById("opponentName");
+	kifElements.chat = document.getElementById("chat");
+	kifElements.chatBox = document.getElementById("chatBox");
+	kifElements.chatText = document.getElementById("chatText");
+	kifElements.chatButton = document.getElementById("chatButton");
+	kifElements.chatInput = document.getElementById("chatInput");
+	kifElements.textButton = document.getElementById("textButton");
+
+	kifElements.card1 = document.getElementById('card1');
+	kifElements.card2 = document.getElementById('card2');
+	kifElements.card1back = document.getElementById('card1b');
+	kifElements.card2back = document.getElementById('card2b');
+	kifElements.card1attributes = document.getElementById('cardAttributes1');
+	kifElements.card2attributes = document.getElementById('cardAttributes2');
+	kifElements.cardContainer2 = document.getElementById('cardcontainer2');
+	kifElements.myCardsNo = document.getElementById("myCardsNo")
+	kifElements.opCardsNo = document.getElementById("opCardsNo")
+
+	//set initial onclick actions
+	kifElements.textButton.onclick = function() {showTextChat();};
+	kifElements.endButton.onclick = function() {confirmExitGame();};
+	kifElements.setButton.onclick = function() {setSettings();};
+	kifElements.lockButton.onclick = function() {lockGame();};
+	kifElements.newButton.onclick = function() {newGame();};
+	kifElements.chatButton.onclick = function() {sendChat();};
+
+	kifElements.chatInput.onkeypress = function() {if (event.keyCode==13) sendChat()};
+
+	document.getElementById("cancelsettings").onclick = function() {cancelSettings();};
+	document.getElementById("savesettings").onclick = function() {saveSettings();};
+	document.getElementById("popunlock").onclick = function() {unlockGame(); return false;};
+	document.getElementById("popcancel").onclick = function() {closePopup(); return false;};
 });
+
+
+window.onbeforeunload = function(){ //that's probably unreliable
+   	sendStatus('logout');
+   	sendStatus('gameClosed');
+};
+
+
+function nameInput(listenerID) {
+	kif.myName = prompt("please, insert your name");
+
+	while (kif.myName === '' || kif.unavailableNames.indexOf(kif.myName) !== -1) {
+		kif.myName = prompt("please insert a different name");
+	}
+
+	eventAPIToUse.removeWebinosEventListener(listenerID);
+
+	if (kif.myName !== null && kif.myName !== undefined && kif.myName !== '') {
+		start();
+		setScreenName();
+	} else {
+		alert('username is missing');
+	}
+};
+
 
 // function modified by Polito
 // this is the former ready function, renamed to start and called from the current ready function
-var start = function(myName) { // former ready function
+var start = function() {
 
-/*ready(function() {
+	eventAPIToUse.addWebinosEventListener(function(event){
+		//debug
+		/*for(var i in kif.users) {
+			console.log(kif.users[i]);
+		}*/
 
-	// modified by Polito
-	// webinos events findServices moved to ready function
-	webinos.ServiceDiscovery.findServices(new ServiceType('http://webinos.org/api/events'),
+		switch(event.payload.type){
+		// event added by Polito
+		case 'nameQuery':
+			sendStatus('nameResponse');
+			break;
 
-		// callback
-		{
-		onFound: function(service){
+		case 'login':
+			if (event.payload.user !== kif.myName){
+				if(typeof kif.users[event.payload.user] === 'undefined' || kif.users[event.payload.user] === 'offline'){
+					kif.users[event.payload.user] = event.addressing.source;
+					if(userNotListed(event.payload.user)){
+						addContact(event.payload.user);
+					}
+				}
+				//if im not invisible i send the event online
+				if(!kif.invisible) {
+					sendStatus('online', true);
+				}
+			}
+			break;
 
-			eventAPIToUse = service;*/
+		case 'online':	//modified the filter for the policy management A. Longo 24.04.12
+			if (event.payload.user !== kif.myName &&
+					(typeof kif.users[event.payload.user] === 'undefined' || kif.users[event.payload.user] == 'offline')
+			){ // Filter
+				kif.users[event.payload.user] = event.addressing.source;
 
-			eventAPIToUse.addWebinosEventListener(function(event){
-				if (typeof kidsinfocusUsers === 'undefined'){
-					alert("kidsinfocusUsers undefined!");
-					kidsinfocusUsers = new Array();
+				//if the player status is not kif.engaged, i can invite him to play
+				if(typeof event.payload.status == 'undefined' || event.payload.status == '') {
+					addContact(event.payload.user);
+				} else { //otherwise the UI shows that the player is currently playing
+					addContact(event.payload.user);
+					setContactPlaying(event.payload.user);
+				}
+			}
+			break;
+
+		case 'logout':
+			kif.users[event.payload.user] = 'offline';
+
+			if (kif.engaged != event.payload.user) {
+				removeContact(event.payload.user);
+			} else {
+				//TODO check why it's like that, with a loop, instead of a remove
+				kifElements.onlineContacts.innerHTML = '';
+				for (var user in kif.users) {
+					if (kif.users[user] !== 'offline') {
+						addContact(user);
+					}
+				}
+			}
+			break;
+
+		case 'gameClosed':
+				if(event.payload.user === kif.engaged) {
+					setStatusMessage(kif.oName + " closed the game!");
+
+					resetApp();
+
+					//if i'm not invisible i send the event loging, showing my presence
+					if(!kif.invisible) {
+						sendStatus('login');
+					}
+
+					sendStatus('notPlaying');
+
+					setTimeout(gameClosed,3000); //TODO why the timeout
+				}
+			break;
+
+		case 'invite':
+			if(event.payload.invitee === kif.myName && !invitationExists(user)) {
+				addInvitation(event.payload.inviter);
+			}
+			break;
+
+		case 'cancelInvite':
+			if(event.payload.invitee === kif.myName) {
+				removeInvitation(event.payload.inviter);
+			}
+			break;
+
+		case 'acceptInvitation':
+			if(event.payload.inviter === kif.myName) {
+				kif.engaged = event.payload.invitee;
+
+				setGameUI();
+				showGame();
+
+				sendStatus('playing');
+				// Enter Stage 3: Start the game.
+			}
+			break;
+
+		case 'playing':
+			if(event.payload.user != kif.myName) {
+				if (userNotListed(event.payload.user)) {
+					addContact(event.payload.user);
+					setContactPlaying(event.payload.user);
+				} else {
+					setContactPlaying(event.payload.user);
 				}
 
-				for(var i in kidsinfocusUsers)
-					console.log(kidsinfocusUsers[i]);
-
-				switch(event.payload.type){
-				// event added by Polito
-				case 'nameQuery':
-					var callback = {};
-					var ev = eventAPIToUse.createWebinosEvent('nameResponse');
-					var evLoad = {};
-					evLoad.type = 'nameResponse';
-					evLoad.user = myName;
-					ev.payload = evLoad;
-					ev.dispatchWebinosEvent(callback);
-					break;
-
-				case 'login':
-					if (event.payload.user !== myName){
-
-						if(typeof kidsinfocusUsers[event.payload.user] === 'undefined' || kidsinfocusUsers[event.payload.user] === 'offline'){
-							kidsinfocusUsers[event.payload.user] = event.addressing.source;
-							if(document.getElementById('liContact' + event.payload.user) == null){
-								htmlLoggedinContact=
-									'<li id="liContact'+event.payload.user+'"><label id=labelContact'+event.payload.user+'>'
-									+ event.payload.user + '</label><a class="button" name="'
-									+ event.payload.user + '" onclick="onclickContactAction(this.name);" id="abuttonContact'
-									+ event.payload.user + '">Invite</a></li>';
-								document.getElementById("onlineContacts").innerHTML += htmlLoggedinContact;
-							}
-						}
-						//if im not invisible i send the event online
-						if(!invisible)
-						{
-							var callback = {};
-							var ev = eventAPIToUse.createWebinosEvent('online');
-							var evLoad = {};
-							evLoad.type = 'online';
-							evLoad.user = myName;
-							evLoad.status = engaged;
-							ev.payload = evLoad;
-							ev.dispatchWebinosEvent(callback);
-						}
-					}
-					break;
-
-				case 'online':        			    		//modified the filter for the policy management A. Longo 24.04.12
-					if (event.payload.user !== myName &&
-							(typeof kidsinfocusUsers[event.payload.user] === 'undefined' || kidsinfocusUsers[event.payload.user] == 'offline')
-					){ // Filter
-						kidsinfocusUsers[event.payload.user] = event.addressing.source;
-						htmlLoggedinContact = '';
-
-						//if the player status is not engaged, i can invite him to play
-						if(event.payload.status == 'undefined' || event.payload.status == '')
-						{
-						htmlLoggedinContact+=
-							'<li id="liContact'+event.payload.user+'"><label id=labelContact'+event.payload.user+'>'
-							+ event.payload.user + '</label><a class="button" name="'
-							+ event.payload.user + '" onclick="onclickContactAction(this.name);" id="abuttonContact'
-							+ event.payload.user + '">Invite</a></li>';
-						}
-						//otherwise the UI shows that the player is currently playing
-						else
-						{
-							htmlLoggedinContact+='<li id="liContact'+event.payload.user+'"><label id=labelContact'+event.payload.user+'>'
-							+ event.payload.user + '</label><a class="button red" name="'
-							+ event.payload.user + '" id="abuttonContact'
-							+ event.payload.user + '">Playing</a></li>';
-						}
-
-						document.getElementById("onlineContacts").innerHTML += htmlLoggedinContact;
-					}
-					break;
-
-				case 'logout':
-					kidsinfocusUsers[event.payload.user] = 'offline';
-
-					if (engaged != event.payload.user)
-						{
-							//remove the player from the online contacts
-							licontact = document.getElementById("liContact" + event.payload.user);
-							if(licontact != null)
-								document.getElementById("onlineContacts").removeChild(document.getElementById("liContact" + event.payload.user));
-							//if the player who is logging out, had invited me, i remove the invitation
-							lilivecontact = document.getElementById('liInviter'+event.payload.user);
-							if(lilivecontact != null)
-								document.getElementById("liveInvitations").removeChild(lilivecontact);
-						}
-					else{
-						leftbox = '<p class="header">Your online contacts:</p><ul id="onlineContacts"></ul>';
-						rightbox = '<p class="header">Your invitations:</p><ul id="liveInvitations"></ul>';
-
-						for (var i in kidsinfocusUsers)
-							if (kidsinfocusUsers[i] !== 'offline')
-								leftbox +=  '<li id="liContact'+i+'"><label id=labelContact'+i+'>'
-								+ i + '</label><a class="button" name="'
-								+ i + '" onclick="onclickContactAction(this.name);" id="abuttonContact'
-								+ i + '">Invite</a></li>';
-						leftbox += '</ul>';
-
-					}
-					break;
-
-				case 'gameClosed':
-						if(event.payload.user === engaged)
-						{
-							switchUICard("1", "b", "");
-							switchUICard("2", "b", "");
-							document.getElementById("status-text").innerHTML = oName + " closed the game!";
-
-							leftbox = '<p class="header">Your online contacts:</p><ul id="onlineContacts"></ul>';
-							rightbox = '<p class="header">Your invitations:</p><ul id="liveInvitations"></ul>';
-
-							kidsinfocusUsers = new Array();
-							engaged = '';
-							useMyDeck = false;
-							oName = "";
-
-							//if i'm not invisible i send the event loging, showing my presence
-							if(!invisible)
-							{
-								var callback = {};
-								var ev = eventAPIToUse.createWebinosEvent('login');
-								var evLoad = {};
-								evLoad.type = 'login';
-								evLoad.user = myName;
-								ev.payload = evLoad;
-								ev.dispatchWebinosEvent(callback);
-							}
-
-							//update my status in notPlaying
-							var callback2 = {};
-							var ev2 = eventAPIToUse.createWebinosEvent('notPlaying');
-							var evLoad2 = {};
-							evLoad2.type = 'notPlaying';
-							evLoad2.user = myName;
-							ev2.payload = evLoad2;
-							ev2.dispatchWebinosEvent(callback2);
-
-							document.getElementById('leftbox').innerHTML = leftbox;
-							document.getElementById('rightbox').innerHTML = rightbox;
-							setTimeout("gameClosed()",3000);
-						}
-					break;
-
-				case 'invite':
-					if(event.payload.invitee === myName && document.getElementById('liInviter' + event.payload.inviter) === null)
-					{
-						htmlInvitation =
-							'<li id="liInviter'+event.payload.inviter+'"><label><span>'
-							+ event.payload.inviter
-							+ '</span> invites you for a game.</label><a class="button" name="'
-							+ event.payload.inviter
-							+ '" onclick="acceptInvitation(this.name)">Accept</a></li>';
-						document.getElementById("liveInvitations").innerHTML += htmlInvitation;
-					}
-					break;
-
-				case 'cancelInvite':
-					if(event.payload.invitee === myName){
-						document.getElementById("liveInvitations").removeChild(document.getElementById("liInviter" + event.payload.inviter));
-					}
-					break;
-
-				case 'acceptInvitation':
-					if(event.payload.inviter === myName){
-
-						//changed without using jquery - A. Longo 19.03.12
-						document.getElementById("home").style.display = 'none';
-						document.getElementById("game").style.display = 'block';
-						loadGameUI();
-						engaged = event.payload.invitee;
-
-						//update my status in 'playing'
-						var callback = {};
-						var ev = eventAPIToUse.createWebinosEvent('playing');
-						var evLoad = {};
-						evLoad.type = 'playing';
-						evLoad.user = myName;
-						ev.payload = evLoad;
-						ev.dispatchWebinosEvent(callback);
-
-						// Enter Stage 3: Start the game.
-
-					}
-					break;
-
-				case 'playing':
-						if(event.payload.user != myName)
-						{
-							licontact = document.getElementById("liContact"+event.payload.user);
-							if(licontact == null)
-							{
-								htmlLoggedinContact=
-							'<li id="liContact'+event.payload.user+'"><label id=labelContact'+event.payload.user+'>'
-								+ event.payload.user + '</label><a class="button red" name="'
-								+ event.payload.user + '" id="abuttonContact'
-								+ event.payload.user + '">Playing</a></li>';
-							document.getElementById("onlineContacts").innerHTML += htmlLoggedinContact;
-							}
-							else
-							{
-								licontact.innerHTML = '<label id=labelContact'+event.payload.user+'>'
-								+ event.payload.user + '</label><a class="button red" name="'
-								+ event.payload.user + '" id="abuttonContact'
-								+ event.payload.user + '">Playing</a></li>';
-							}
-							//if one of the player who changed state in playing, had invited me, i remove the invitation
-							liinvite = document.getElementById('liInviter'+event.payload.user);
-							if(liinvite != null)
-								document.getElementById("liveInvitations").removeChild(liinvite);
-						}
-						break;
-				case 'notPlaying':
-						if(event.payload.user != myName)
-						{
-							licontact = document.getElementById("liContact"+event.payload.user);
-							if(licontact != 'undefined')
-							{
-								licontact.innerHTML = '<label id=labelContact'+event.payload.user+'>'
-								+ event.payload.user + '</label><a class="button" name="'
-								+ event.payload.user + '" onclick="onclickContactAction(this.name);" id="abuttonContact'
-								+ event.payload.user + '">Invite</a></li>';
-							}
-						}
-						break;
-
-				case 'sendDeckData':
-
-					if(event.payload.receiver === myName)
-					{
-						cardData = eval(event.payload.data);
-						init();
-					}
-					break;
-				case 'setCardsClassName':
-
-					if(event.payload.receiver === myName)
-					{
-						setCardsClassName(event.payload.data);
-					}
-					break;
-				case 'myCards':
-					if(event.payload.receiver === myName)
-					{
-						gamet.myCards = event.payload.data;
-					}
-					break;
-				case 'nextTurn':
-					if(event.payload.receiver === myName)
-					{
-						if(event.payload.data != null)
-						{
-							//I moved status div to game.html - kwlodarska 14.03.2012 i.e. webinos_trumps.html Wei Guo 06-12-2012
-							gamet.started = true;
-							document.getElementById("cont-button").innerHTML = '<a id="continue" class="button" onClick="cont();">Continue</a>';
-							gamet.currentTurn = event.payload.data;
-							var newElem = document.getElementById("newElem");
-							var newButton = document.getElementById("newButton");
-							newElem.className = "button2";
-							newButton.setAttribute('onClick', 'newGame(); return false;');
-
-							var endElem = document.getElementById("endElem");
-							endElem.className = "button2";
-						}
-						nextTurn();
-					}
-					break;
-				case 'attrChosen':
-					if(event.payload.receiver === myName)
-					{
-						var turn = gamet.currentTurn;
-						evaluateAttr(event.payload.data);
-						if(!turn)
-						{
-							event.payload.data.card = gamet.myCurrentCard;
-							sendMsg('attrChosen', event.payload.data);
-						}
-					}
-					break;
-				case 'chat':
-					if(event.payload.receiver === myName)
-					{
-						document.getElementById('chatBox').innerHTML += '<p class="opponentLine"><span style="font-size:'+opponentSettings.size+';color:'+opponentSettings.color+'">'+event.payload.sender+': </span><span style="font-family:'+opponentSettings.family+';font-size:'+opponentSettings.size+';color:'+opponentSettings.color+'">' + event.payload.data + '</span></p>';
-
-						var objDiv = document.getElementById("chatBox");
-						objDiv.scrollTop = objDiv.scrollHeight;
-
-						//indicates incoming chate messages
-						if(document.getElementById('chat').style.display == "none" || document.getElementById('chat').style.display == "")
-								document.getElementById('textButton').style.border = "3px solid red";
-					}
-					break;
-				case 'newGame':
-					if(event.payload.receiver === myName)
-					{
-						document.getElementById("cont-button").innerHTML = '';
-						document.getElementById("status-text").style.color = '#000000';
-						gamet.newGameProposal = true;
-						status = event.payload.sender+' wants to start a New Game';
-						// ok/cancel buttons moved to 'cont-button' div - kwlodarska 26.03
-		                document.getElementById("status-text").innerHTML = status;
-		                document.getElementById("cont-button").innerHTML = '<a class="button" onClick="newGameAccepted(false);">OK</a><a class="button red" onClick="newGameRefused();">Cancel</a>';
-					}
-					break;
-				case 'newGameAccepted':
-					if(event.payload.receiver === myName)
-					{
-						newGameAccepted(true);
-					}
-					break;
-				case 'newGameRefused':
-					if(event.payload.receiver === myName)
-					{
-						gamet.newGameProposal = false;
-						updateUI();
-						document.getElementById("status-text").innerHTML += event.payload.sender+ " refused to start a new game!";
-					}
-					//continue button restored - kwlodarska 26.03
-					if(gamet.currentTurn)
-						document.getElementById("cont-button").innerHTML = '<a id="continue" class="button" onClick="cont();">Continue</a>';
-					else
-						document.getElementById("cont-button").innerHTML = '';
-					break;
-				} // End of swtich(event.payload.type)
-			});
-
-			// commented out by Polito
-			/*function getURLParameter(name) {
-				return decodeURI((RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]);
+				//if one of the player who changed state in playing, had invited me, i remove the invitation
+				removeInvitation(event.payload.user);
 			}
-			myName = getURLParameter("user");*/
-			if(!invisible)
-			{
-				var callback = {};
-				var ev = eventAPIToUse.createWebinosEvent('login');
-				var evLoad = {};
-				evLoad.type = 'login';
-				evLoad.user = myName;
-				ev.payload = evLoad;
-				ev.dispatchWebinosEvent(callback);
+			break;
+
+		case 'notPlaying':
+			if(event.payload.user != kif.myName) {
+				if (!userNotListed(event.payload.user)) {
+					resetContact(event.payload.user);
+				}
 			}
+			break;
 
-		};
-//	});
-//});
+		case 'sendDeckData':
+			if(event.payload.receiver === kif.myName) {
+				kif.cardData = JSON.parse(event.payload.data);
+				gameInit();
+			}
+			break;
 
-var kidsinfocusUsers = new Array();
-var engaged = '';
-var useMyDeck = false;
-var oName = "";
+		case 'setCardsClassName':
+			if(event.payload.receiver === kif.myName) {
+				setCardsClassName(event.payload.data);
+			}
+			break;
 
-window.onbeforeunload = function(){
-	var callback = {};
-   	var ev = eventAPIToUse.createWebinosEvent('logout');
-   	var evClose = {};
-   	evClose.type = 'logout';
-   	evClose.user = myName;
-   	ev.payload = evClose;
-   	ev.dispatchWebinosEvent(callback);
+		case 'myCards':
+			if(event.payload.receiver === kif.myName) {
+				gamet.myCards = event.payload.data;
+			}
+			break;
 
-   	var callback2 = {};
-   	var ev2 = eventAPIToUse.createWebinosEvent('gameClosed');
-   	var evClose2 = {};
-   	evClose2.type = 'gameClosed';
-   	evClose2.user = myName;
-   	ev2.payload = evClose2;
-   	ev2.dispatchWebinosEvent(callback2);
-};
+		case 'nextTurn':
+			if(event.payload.receiver === kif.myName) {
+				if(event.payload.data != null) {
+					gamet.started = true;
+					setContButton('continue');
+					gamet.currentTurn = event.payload.data;
+					kifElements.newElem.className = "button2"; //TODO?
+					kifElements.endElem.className = "button2";
+					kifElements.newButton.onclick = function() {newGame(); return false;};
+				}
+				nextTurn();
+			}
+			break;
 
-// Called when the "Cancel" button is clicked on.
-function cancelInvitation(invitee){
+		case 'attrChosen':
+			if(event.payload.receiver === kif.myName) {
+				var turn = gamet.currentTurn;
+				evaluateAttr(event.payload.data);
+				if(!turn) {
+					event.payload.data.card = gamet.myCurrentCard;
+					sendMsg('attrChosen', event.payload.data);
+				}
+			}
+			break;
 
-	//modified for a correct policy management handling A. Longo 23/04/12
+		case 'chat':
+			if(event.payload.receiver === kif.myName) {
+				pasteChatMsg(event.payload.sender, event.payload.data);
+				scrollDownChatBox();
 
-   /*leftbox = '<p class="header">Your online contacts:</p><ul id="onlineContacts">';
-   rightbox = '<p class="header">Your invitations:</p><ul id="liveInvitations"></ul>';
+				//indicates incoming chat messages
+				if(kifElements.chat.style.display == "none" || kifElements.chat.style.display == "") { //TODO?
+					kifElements.textButton.style.border = "3px solid red";
+				}
+			}
+			break;
 
-   for (var i in kidsinfocusUsers)
-      if (kidsinfocusUsers[i] !== 'offline')
-         leftbox +=  '<li id="liContact'+i+'"><label id=labelContact'+i+'>'
-               + i + '</label><a class="button" name="'
-               + i + '" onclick="onclickContactAction(this.name);" id="abuttonContact'
-               + i + '">Invite</a></li>';
-   leftbox += '</ul>';
-   document.getElementById('leftbox').innerHTML = leftbox;
-   document.getElementById('rightbox').innerHTML = rightbox;*/
+		case 'newGame':
+			if(event.payload.receiver === kif.myName) {
+				setStatusMessage(event.payload.sender+' wants to start a New Game', 'black');
+				setContButton('newgame');
+				gamet.newGameProposal = true;
+			}
+			break;
 
-   licontact = document.getElementById("liContact"+invitee);
-	if(licontact != 'undefined')
-	{
-		licontact.innerHTML = '<label id=labelContact'+invitee+'>'
-		+ invitee + '</label><a class="button" name="'
-		+ invitee + '" onclick="onclickContactAction(this.name);" id="abuttonContact'
-		+ invitee + '">Invite</a></li>';
+		case 'newGameAccepted':
+			if(event.payload.receiver === kif.myName) {
+				newGameAccepted(true);
+			}
+			break;
+
+		case 'newGameRefused':
+			if(event.payload.receiver === kif.myName) {
+				gamet.newGameProposal = false;
+				updateUI();
+				appendStatusMessage(event.payload.sender+ " refused to start a new game!");
+			}
+			if(gamet.currentTurn) {
+				setContButton('continue');
+			} else {
+				setContButton('empty');
+			}
+			break;
+		} // End of switch(event.payload.type)
+	});
+
+	// commented out by Polito
+	/*function getURLParameter(name) {
+		return decodeURI((RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]);
 	}
+	kif.myName = getURLParameter("user");*/
+	if(!kif.invisible) {
+		sendStatus('login');
+	}
+};
 
 
-    // Send the cancel invitation event.
-	var callback = {};
-   	var ev = eventAPIToUse.createWebinosEvent();
-   	var evCancelInvite = {};
-   	evCancelInvite.type = 'cancelInvite';
-   	evCancelInvite.inviter = myName;
-   	evCancelInvite.invitee = invitee;
-   	ev.payload = evCancelInvite;
-   	ev.dispatchWebinosEvent(callback);
+/* HTML-related functions */
 
-	myDeck=false;
-	oName="";
+
+function setScreenName() {
+	kifElements.homeScreenName.innerHTML = "Your screen name: <b>"+kif.myName+"</b>";
 }
 
-// The button click event handler.
-function onclickContactAction(contactName) {
-	// Invite and go to Stage 2, waiting for response from invitee.
+//2 "screens" per function should be sufficient, but more could be added
+function showHome() {
+	kifElements.home.style.display = 'block';
+	kifElements.game.style.display = 'none';
 
-	//modified for a correct policy management handling A. Longo 23/04/12
+	kifElements.homeScreenName.style.display = 'block';
+}
+function showGame() {
+	kifElements.home.style.display = 'none';
+	kifElements.game.style.display = 'block';
 
-     /* document.getElementById('leftbox').innerHTML = '<p class="header">Your online contacts:</p><ul id="onlineContacts">'
-         + '<li><label>Inviting <span>'
-         + contactName + '</span>...  Waiting for response...</label><a class="button red" name="'
-         + contactName + '" onclick="cancelInvitation(this.name);">Cancel</a></li></ul>';*/
-
-    licontact = document.getElementById("liContact"+contactName);
-	licontact.innerHTML = '<label id=labelContact'+contactName+'>Inviting <span>'+contactName+'</span>...Waiting for response...</label><a class="button red" name="'	+ contactName + '" id="abuttonContact'	+ contactName + '" onclick="cancelInvitation(this.name);">Cancel</a></li>';
-
-    // Send the invitation event.
-	var callback = {};
-   	var ev = eventAPIToUse.createWebinosEvent();
-   	var evInvite = {};
-   	evInvite.type = 'invite';
-   	evInvite.inviter = myName;
-   	evInvite.invitee = contactName;
-   	ev.payload = evInvite;
-   	ev.dispatchWebinosEvent(callback);
-
-	useMyDeck = true;
-	oName = contactName;
+	kifElements.homeScreenName.style.display = 'none';
 }
 
-//Called when the "Accept" button is clicked on.
-function acceptInvitation(inviter){
-    // Enter Stage 3: Start the game.
+function showSettings() {
+	kifElements.game.style.display = 'none';
+	kifElements.settings.style.display = 'block';
+}
+function hideSettings() {
+	kifElements.game.style.display = 'block';
+	kifElements.settings.style.display = 'none';
+}
 
-   //changed without using jquery - A. Longo 19.03.12
-   document.getElementById("home").style.display = 'none';
-   document.getElementById("game").style.display = 'block';
+function showDecks() {
+	document.getElementById("deck-box").style.display = 'block';
+	document.getElementById("play-box").style.display = 'none';
+}
+function hideDecks() {
+	document.getElementById("deck-box").style.display = 'none';
+	document.getElementById("play-box").style.display = 'block';
+}
 
-   loadGameUI();
+function closePopup() {
+   kifElements.opacityBack.style.display = "none";
+   kifElements.popup.style.display = "none";
+   kifElements.password.value = '';
+}
 
-    engaged = inviter;
+function openPopup() {
+   kifElements.opacityBack.style.display = "block";
+   kifElements.popup.style.display = "table";
+}
 
-    // Send the invitation event.
-	var callback = {};
-   	var ev = eventAPIToUse.createWebinosEvent();
-   	var evAcceptInvitation = {};
-   	evAcceptInvitation.type = 'acceptInvitation';
-   	evAcceptInvitation.inviter = inviter;
-   	evAcceptInvitation.invitee = myName;
-   	ev.payload = evAcceptInvitation;
-   	ev.dispatchWebinosEvent(callback);
 
-   	// Send the playing event
-   	var callback = {};
-	var ev = eventAPIToUse.createWebinosEvent('playing');
-	var evLoad = {};
-	evLoad.type = 'playing';
-	evLoad.user = myName;
-	ev.payload = evLoad;
-	ev.dispatchWebinosEvent(callback);
+function userNotListed(user) {
+	if (document.getElementById('liContact' + user) == null) {
+		return true;
+	}
+}
+function invitationExists(user) {
+	if(document.getElementById("liInviter" + user) != null) {
+		return true;
+	}
+}
 
-	useMyDeck=false;
-	oName = inviter;
+function addContact(user) {
+	var li = document.createElement('li');
+	li.id = 'liContact'+user;
+
+	var label = document.createElement('label');
+	label.id = 'labelContact'+user;
+	label.appendChild(document.createTextNode(user));
+	li.appendChild(label);
+
+	var anch = document.createElement('a');
+	anch.id = 'abuttonContact'+user;
+	anch.className = "button";
+	anch.onclick = function() {onclickContactAction(user)};
+	anch.appendChild(document.createTextNode("Invite"));
+	li.appendChild(anch);
+
+	kifElements.onlineContacts.appendChild(li);
+}
+function setContactPlaying(user) {
+	var anch = document.getElementById('abuttonContact' + user);
+	addClass(anch,'red');
+	anch.onclick = null;
+	anch.firstChild.nodeValue = "Playing";
+}
+function setContactAsInvited(user) {
+	var label = document.getElementById('labelContact' + user);
+	label.innerHTML = "Inviting <span>"+user+"</span>...Waiting for response...";
+	var anch = document.getElementById('abuttonContact' + user);
+	addClass(anch,'red');
+	anch.onclick = function() {cancelInvitation(user)};
+	anch.firstChild.nodeValue = "Cancel";
+}
+function resetContact(user, resetLabel) {
+	if(resetLabel) {
+		var label = document.getElementById('labelContact' + user);
+		label.innerHTML = user;
+	}
+	var anch = document.getElementById('abuttonContact' + user);
+	removeClass(anch,'red');
+	anch.onclick = function() {onclickContactAction(user)};
+	anch.firstChild.nodeValue = "Invite";
+}
+
+function removeContact(user) {
+	//remove the player from the list
+	licontact = document.getElementById("liContact" + user);
+	if(licontact != null) {
+		kifElements.onlineContacts.removeChild(licontact);
+	}
+	//if the player who is logging out, had invited me, i remove the invitation
+	removeInvitation(user);
+}
+
+function addInvitation(user) {
+	var li = document.createElement('li');
+	li.id = 'liInviter'+user;
+
+	var label = document.createElement('label');
+	var span = document.createElement('span');
+	span.appendChild(document.createTextNode(user));
+	label.appendChild(span);
+	label.appendChild(document.createTextNode(" invites you for a game."));
+	li.appendChild(label);
+
+	var anch = document.createElement('a');
+	anch.className = "button";
+	anch.onclick = function() {acceptInvitation(user)};
+	anch.appendChild(document.createTextNode("Accept"));
+	li.appendChild(anch);
+
+	kifElements.liveInvitations.appendChild(li);
+}
+
+function removeInvitation(user) {
+	var invitation = document.getElementById("liInviter" + user);
+	if(invitation) kifElements.liveInvitations.removeChild(invitation);
+}
+
+function setStatusMessage(msg, className, add) { //you can skip the third param and use wrapper below; if no className - reset/remove classes
+	if(add) {
+		kifElements.status.innerHTML += '<br>'+msg;
+	} else {
+		kifElements.status.innerHTML = msg;
+	}
+	if(className) {
+		kifElements.status.className = className;
+	} else {
+		kifElements.status.removeAttribute("class");
+	}
+}
+function appendStatusMessage(msg, className) {
+	setStatusMessage(msg, className, true);
+}
+
+function setContButton(opt) {
+	var content;
+	switch(opt) {
+		case 'empty':
+			content = '';
+			break;
+		case 'continue':
+			content = '<a id="continue" class="button" onClick="cont();">Continue</a>';
+			break;
+		case 'start':
+			content = '<a href="#" id="play" class="button" onClick="play();">Start</a>';
+			break;
+		case 'exit':
+			content = '<a class="button" onClick="exitGame();">OK</a><a class="button red" onClick="cancelExitGame();">Cancel</a>';
+			break;
+		case 'newgame':
+			content = '<a class="button" onClick="newGameAccepted(false);">OK</a><a class="button red" onClick="newGameRefused();">Cancel</a>';
+			break;
+		case 'newgame+':
+			content = '<a class="button" onClick="newGameAccepted(false);">Yes</a><a class="button red" onClick="exitGame();">No</a>';
+			break;
+	}
+	kifElements.contButton.innerHTML = content;
+}
+
+function showTextChat() {
+   kifElements.chat.style.display = 'table-row';
+   kifElements.textButton.onclick = function() { hideTextChat(); };
+   //added to remove the incoming message notification A. Longo 30.04
+   kifElements.textButton.style.border = 'none';
+}
+
+function hideTextChat() {
+   kifElements.chat.style.display = 'none';
+   kifElements.textButton.onclick = function() { showTextChat(); };
+}
+
+function lockGame() {
+   kifElements.newElem.className = 'disabled';
+   kifElements.newButton.onclick = null;
+
+   kifElements.lockButton.innerHTML = "Unlock";
+   kifElements.lockButton.onclick = function() { openPopup(); return false; };
+
+   kifElements.endElem.className = 'disabled';
+
+   kifElements.endButton.onclick = null;
 };
 
-//Andrea's module starts here
+function unlockGame() {
+   kifElements.newElem.className = "button2";
+   kifElements.newButton.onclick = function() {newGame(); return false;};
 
-function hasClass(ele,cls) {
-  return ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
+   kifElements.lockButton.onclick = function() {lockGame(); return false;};
+   kifElements.lockButton.innerHTML = "Lock";
+
+   kifElements.endElem.className = "button2";
+   kifElements.endButton.onclick = function() {exitGame(); return false;};
+
+   closePopup();
 };
 
-function addClass(ele,cls) {
-if(ele != null)
-  if (!hasClass(ele,cls)) ele.className += " "+cls;
-};
-
-function removeClass(ele,cls) {
-if(ele != null)
-  if (hasClass(ele,cls)) {
-      var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
-      ele.className=ele.className.replace(reg,' ');
-  }
-};
-
-
-//generic function which generates an event
-function sendMsg(msgType, msgData)
-{
-	var callback = {};
-   	var ev = eventAPIToUse.createWebinosEvent();
-   	var evSendMsg = {};
-   	evSendMsg.type = msgType;
-   	evSendMsg.sender = myName;
-   	evSendMsg.receiver = oName;
-   	evSendMsg.data = msgData;
-   	ev.payload = evSendMsg;
-   	ev.dispatchWebinosEvent(callback);
-};
 
 //GAME UI
-function loadGameUI(){
-	var ajaxRequest;
-	try{ ajaxRequest = new XMLHttpRequest(); }
-	catch (e){
-		alert("Excepiton: " + e);
-		return false;
+function setGameUI(){
+	kifElements.myName.innerHTML = kif.myName;
+	kifElements.opponentName.innerHTML = kif.oName;
+	//document.getElementById("chatBox").innerHTML = '<input type="text" id="chatBx" height="200">';
+
+ //buttons below should be greyed(look like disabled) only when lock feature is active - kwlodarska 23.04
+	//var newElem = document.getElementById("newElem");
+	//newElem.className = 'disabled';
+	//var endElem = document.getElementById("endElem");
+	//endElem.className = 'disabled';
+
+
+	//initialize chat settings
+
+	if(kif.useMyDeck) {
+		choseDeck();
+	} else {
+		setStatusMessage("Waiting for the dealer...");
 	}
-
-	ajaxRequest.onreadystatechange = function(){
-		if(ajaxRequest.readyState == 4){
-			var ajaxDisplay = document.getElementById('game');
-			ajaxDisplay.innerHTML = ajaxRequest.responseText;
-
-			document.getElementById("myN").innerHTML = myName;
-			document.getElementById("opponentN").innerHTML = oName;
-			document.getElementById("chatText").innerHTML = '<input type="text" id="chatTx" onkeypress="{if (event.keyCode==13) sendChat()}">';
-			//document.getElementById("chatBox").innerHTML = '<input type="text" id="chatBx" height="200">';
-			document.getElementById("chatButton").innerHTML = '<a class="button" onclick="sendChat();">Send</a>';
-
-         //buttons below should be greyed(look like disabled) only when lock feature is active - kwlodarska 23.04
-			//var newElem = document.getElementById("newElem");
-   		//	newElem.className = 'disabled';
-   		//	var endElem = document.getElementById("endElem");
-   		//	endElem.className = 'disabled';
-
-
-   			//initialize chat settings
-   			document.getElementById("chatTx").style.color = "black";
-   			document.getElementById("chatTx").style.fontFamily = "sans-serif";
-   			document.getElementById("chatTx").style.fontSize = "100%";
-   			opponentSettings.color = "black";
-   			opponentSettings.family = "sans-serif";
-   			opponentSettings.size = "100%";
-
-			if(useMyDeck)
-			{
-				choseDeck();
-			}
-			else
-				document.getElementById("status-text").innerHTML = "Waiting for the dealer...";
-			}
-	}
-	ajaxRequest.open("GET", "webinos_trumps.html", true);
-	ajaxRequest.send(null);
 };
 
+
+// AJAX
 function choseDeck(){
 	var ajaxRequest;
 	try{ ajaxRequest = new XMLHttpRequest(); }
 	catch (e){
-		alert("Excepiton: " + e);
+		alert("Exception: " + e);
 		return false;
 	}
 
 	ajaxRequest.onreadystatechange = function(){
 		if(ajaxRequest.readyState == 4){
-			decks = eval(ajaxRequest.responseText);
-			var html ='';
-			for(i = 0; i < decks.length; i++)
-			{
-				html += '<div class="picture button2" onclick="loadDeck('+i+');">'
-				html += '<p>'+decks[i].name+'</p><p>Cards: '+decks[i].NumberOfCards+'</p>';
-				html += '</div>'
-			}
-			//html += '</div>';
-			document.getElementById("deck-box").style.display = 'block';
-         document.getElementById("play-box").style.display = 'none';
-			//document.getElementById("status-text").innerHTML = "Chose the deck:";
-			document.getElementById("deck-box").innerHTML = html;
+			kif.decks = JSON.parse(ajaxRequest.responseText);
+			drawDecks();
 		}
 	}
 	ajaxRequest.open("GET", "webinos_trumps_decks.js", true);
-	ajaxRequest.send(null);
+	ajaxRequest.send();
 };
 
-function loadDeck(i)
-{
+function drawDecks() {
+	var html ='';
+	for(i = 0; i < kif.decks.length; i++) {
+		html += '<div class="picture button2" onclick="loadDeck('+i+');">'
+		html += '<p>'+kif.decks[i].name+'</p><p>Cards: '+kif.decks[i].NumberOfCards+'</p>';
+		html += '</div>'
+	}
+	//document.getElementById("status-text").innerHTML = "Chose the deck:";
+	document.getElementById("deck-box").innerHTML = html;
+
+	showDecks();
+}
+
+// AJAX
+function loadDeck(i) {
 	var ajaxRequest;
 
-	try{ ajaxRequest = new XMLHttpRequest(); }
-	catch (e){
+	try { ajaxRequest = new XMLHttpRequest(); }
+	catch (e) {
 		alert("Excepiton: " + e);
 		return false;
 	}
 
-	document.getElementById("deck-box").style.display = 'none';
-    document.getElementById("play-box").style.display = 'block';
-
 	ajaxRequest.onreadystatechange = function(){
 		if(ajaxRequest.readyState == 4){
-			cardData = eval(ajaxRequest.responseText);
+			kif.cardData = JSON.parse(ajaxRequest.responseText);
 			sendMsg('sendDeckData', ajaxRequest.responseText);
-			sendMsg('setCardsClassName', decks[i].className);
-			setCardsClassName(decks[i].className);
-			init();
+			sendMsg('setCardsClassName', kif.decks[i].className);
+			setCardsClassName(kif.decks[i].className);
+
+			hideDecks();
+			gameInit();
+			setStatusMessage('Click start to Play');
+			setContButton('start');
 		}
 	};
-	ajaxRequest.open("GET", "webinos_trumps_decks/"+decks[i].url , true);
-	ajaxRequest.send(null);
-	document.getElementById("status-text").innerHTML = 'Click start to Play';
-	document.getElementById("cont-button").innerHTML ='<a href="#" id="play" class="button" onClick="play();">Start</a>';
-	deckIndex = i;
+	ajaxRequest.open("GET", "webinos_trumps_decks/"+kif.decks[i].url , true);
+	ajaxRequest.send();
 };
 
-var setCardsClassName = function(className) {
-	document.getElementById('card1').className = "card-front "+className;
-	document.getElementById('card2').className = "card-front "+className;
-	document.getElementById('card1b').className = "card-back "+className;
-	document.getElementById('card2b').className = "card-back "+className;
+
+function setCardsClassName(className) {
+	kifElements.card1.className = "card-front "+className;
+	kifElements.card2.className = "card-front "+className;
+	kifElements.card1back.className = "card-back "+className;
+	kifElements.card2back.className = "card-back "+className;
 }
 
-function initializeAttributes(data)
-{
-	var attributes = new Array();
-	var cardHTML = '';
+function initializeAttributes(data) {
+	var attributes = [];
+	var card1HTML = '';
+	var card2HTML = '';
 	var skip=0;
   	var count=1;
-	for (i in data[0])
-	   {
-	      if(skip < 3)
-	      {
-			 skip++;
-			 continue;
-	      }
-	      attributes.push(i);
-	      cardHTML = document.getElementById('card1').innerHTML;
-	      cardHTML += "<div class='line' id='c1attr"+count+"' onClick='lineChosen("+count+");mark(this.id);'><span id='ac1"+count+"n'>"+i+"</span><span id='ac1"+count+"v'></span></div>";
-	      document.getElementById('card1').innerHTML = cardHTML;
-	      cardHTML = document.getElementById('card2').innerHTML;
-	      cardHTML += "<div id='c2attr"+count+"' onClick='lineChosen("+count+");mark(this.id);'><span id='ac2"+count+"n'>"+i+"</span><span id='ac2"+count+"v'></span></div>";
-	      document.getElementById('card2').innerHTML = cardHTML;
-	      count++;
-	   }
+	for (i in data[0]) {
+	  if(skip < 3) {
+		 skip++;
+		 continue;
+	  }
+	  attributes.push(i);
+	  card1HTML += "<div id='c1attr"+count+"' onClick='lineChosen("+count+");mark(this.id);'><span id='ac1"+count+"n'>"+i+"</span><span id='ac1"+count+"v'></span></div>";
+	  card2HTML += "<div id='c2attr"+count+"' onClick='lineChosen("+count+");mark(this.id);'><span id='ac2"+count+"n'>"+i+"</span><span id='ac2"+count+"v'></span></div>";
+	  count++;
+	}
+	kifElements.card1attributes.innerHTML = card1HTML;
+	kifElements.card2attributes.innerHTML = card2HTML;
 	return attributes;
 };
 
-
-//sends chat message
-function sendChat()
-{
-	var msgDiv = document.getElementById('chatTx');
-	var msg = msgDiv.value;
+//sends user's chat message
+function sendChat() {
+	var msg = kifElements.chatInput.value;
 	if(msg!='') {
-		msgDiv.value = "";
+		kifElements.chatInput.value = "";
 		sendMsg('chat', msg);
-		var objDiv = document.getElementById("chatBox");
-		objDiv.innerHTML += '<p><span style="font-size:'+msgDiv.style.fontSize+';color:'+msgDiv.style.color+'">Me: </span><span style="font-family:'+msgDiv.style.fontFamily+';font-size:'+msgDiv.style.fontSize+';color:'+msgDiv.style.color+'">' + msg + '</span></p>';
-		objDiv.scrollTop = objDiv.scrollHeight;
+		pasteChatMsg(kif.myName, msg);
+		scrollDownChatBox();
 	}
 };
 
-function confirmExitGame()
-{
-	document.getElementById("cont-button").innerHTML = '';
-	document.getElementById("status-text").style.color = '#000000';
-	status = 'Are you sure you want to exit?';
-    document.getElementById("status-text").innerHTML = status;
-    document.getElementById("cont-button").innerHTML = '<a class="button" onClick="exitGame();">OK</a><a class="button red" onClick="cancelExitGame();">Cancel</a>';
+function pasteChatMsg(sender, msg) {
+	var senderName,
+		settings,
+		pClass;
+	if(sender == kif.myName) {
+		senderName = 'Me';
+		settings = kif.settings.mine;
+		pClass = '';
+	} else {
+		senderName = sender;
+		settings = kif.settings.opponent;
+		pClass = ' class="opponentLine"';
+	}
+
+	kifElements.chatBox.innerHTML += '<p'+pClass+'><span style="font-size:'+settings.fontSize+';color:'+settings.color+'">'+senderName+': </span><span style="font-family:\''+settings.fontFamily+'\';font-size:'+settings.fontSize+';color:'+settings.color+'">' + msg + '</span></p>';
+}
+
+function scrollDownChatBox() {
+	kifElements.chatBox.scrollTop = kifElements.chatBox.scrollHeight;
+}
+
+function setSettings() {
+	//	THOSE SETTINGS ARE OBSOLETE AND _BADLY IMPLEMENTED_!
+	//	but in the future - if stuff could be saved- settings should ALWAYS be put to kif.settings
+	//	the settings itself could be generated dynamically with this function, and options would have an index
+	//	going in/from the kif.settings (and not for example "150%")
+	//	So this function should be invoked then ONCE at start, and the settings button would have onclick=showSettings
+
+	//load previous settings in the dropdown lists
+	/*document.getElementById("mcolor").selectedIndex = getColorIndex(document.getElementById("chatInput").style.color);
+	document.getElementById("mfamily").selectedIndex = getFamilyIndex(document.getElementById("chatInput").style.fontFamily);
+	document.getElementById("msize").selectedIndex = getSizeIndex(document.getElementById("chatInput").style.fontSize);
+	document.getElementById("ocolor").selectedIndex = getColorIndex(kif.settings.opponent.color);
+	document.getElementById("ofamily").selectedIndex = getFamilyIndex(kif.settings.opponent.fontFamily);
+	document.getElementById("osize").selectedIndex = getSizeIndex(kif.settings.opponent.fontSize);
+	if(kif.invisible) {
+		document.getElementById("mstatus").selectedIndex = 1;
+	}*/
+
+	showSettings();
 };
 
-function cancelExitGame()
-{
-		document.getElementById("cont-button").innerHTML = '';
-		if(useMyDeck)
-		{
-			 document.getElementById("status-text").innerHTML = 'Click Start to Play';
-			 document.getElementById("cont-button").innerHTML ='<a href="#" id="play" class="button" onClick="play();">Start</a>';
-		}
-		else
-			 document.getElementById("status-text").innerHTML = 'Waiting for the dealer...';
-		if(gamet != 'undefined' && gamet != null && gamet.started)
-		{
-			updateUI();
-			if(gamet.currentTurn)
-				document.getElementById("cont-button").innerHTML = '<a id="continue" class="button" onClick="cont();">Continue</a>';
-			else
-				document.getElementById("cont-button").innerHTML = '';
-		}
+function saveSettings() {
+	mfc = document.getElementById("mcolor");
+	kif.settings.mine.color = mfc.options[mfc.selectedIndex].value;
+	mff = document.getElementById("mfamily");
+	kif.settings.mine.fontFamily = mff.options[mff.selectedIndex].value;
+	mfs = document.getElementById("msize");
+	kif.settings.mine.fontSize = mfs.options[mfs.selectedIndex].value;
+
+	ofc = document.getElementById("ocolor");
+	kif.settings.opponent.color = ofc.options[ofc.selectedIndex].value;
+	off = document.getElementById("ofamily");
+	kif.settings.opponent.fontFamily = off.options[off.selectedIndex].value;
+	ofs = document.getElementById("osize");
+	kif.settings.opponent.fontSize = ofs.options[ofs.selectedIndex].value;
+
+//apply
+	kifElements.chatInput.style.color = kif.settings.mine.color;
+	kifElements.chatInput.style.fontFamily = kif.settings.mine.fontFamily;
+	kifElements.chatInput.style.fontSize = kif.settings.mine.fontSize;
+
+	mst = document.getElementById("mstatus");
+	kif.users[kif.myName] = mst.options[mst.selectedIndex].value;
+
+	if(kif.users[kif.myName] == 'offline') {
+		kif.invisible = true;
+		sendStatus('logout', true);
+	} else {
+		kif.invisible = false;
+		sendStatus('online', true);
+	}
+
+	hideSettings();
+	scrollDownChatBox();
 };
 
-function exitGame()
-{
-	var callback = {};
-   	var ev = eventAPIToUse.createWebinosEvent('gameClosed');
-   	var evClose = {};
-   	evClose.type = 'gameClosed';
-   	evClose.user = myName;
-   	ev.payload = evClose;
-   	ev.dispatchWebinosEvent(callback);
+function cancelSettings() {
+	hideSettings();
+	scrollDownChatBox();
+};
 
-   	var callback2 = {};
-	var ev2 = eventAPIToUse.createWebinosEvent('notPlaying');
-	var evLoad2 = {};
-	evLoad2.type = 'notPlaying';
-	evLoad2.user = myName;
-	ev2.payload = evLoad2;
-	ev2.dispatchWebinosEvent(callback2);
+
+/* ONCLICK actions */
+
+
+// mark option on a card
+function mark(attr) {
+	if((attr == null || gamet.currentTurn) && !gamet.newGameProposal) {
+		for(var i=1; i<=5; i++) {
+			removeClass(document.getElementById('c1attr'+i),'marked');
+		}
+		addClass(document.getElementById(attr),'marked');
+	}
+};
+
+function onclickContactAction(contactName) {
+	// Invite and go to Stage 2, waiting for response from invitee.
+	setContactAsInvited(contactName)
+
+   	sendInvitation('invite', kif.myName, contactName);
+
+	kif.useMyDeck = true;
+	kif.oName = contactName;
+}
+
+function cancelInvitation(invitee){
+	resetContact(invitee, true);
+
+   	sendInvitation('cancelInvite', kif.myName, invitee);
+
+	kif.useMyDeck = false;
+	kif.oName = "";
+}
+
+function acceptInvitation(inviter){
+	kif.oName = inviter;
+	kif.useMyDeck = false;
+	kif.engaged = inviter;
+
+    // Enter Stage 3: Start the game.
+	setGameUI();
+	showGame();
+
+   	sendInvitation('acceptInvitation', inviter, kif.myName);
+
+	sendStatus('playing');
+};
+
+function confirmExitGame() {
+	setStatusMessage('Are you sure you want to exit?', 'black');
+    setContButton('exit');
+};
+
+function cancelExitGame() {
+	setContButton('empty');
+	if(kif.useMyDeck) {
+		 setStatusMessage('Click Start to Play');
+		 setContButton('start');
+	} else {
+		 setStatusMessage('Waiting for the dealer...');
+	}
+	if(typeof gamet != 'undefined' && gamet != null && gamet.started) {
+		updateUI();
+		if(gamet.currentTurn) {
+			setContButton('continue');
+		} else {
+			setContButton('empty');
+		}
+	}
+};
+
+function gameClosed() {
+	showHome();
+};
+
+function anotherGame() {
+	if(kif.useMyDeck) {
+	   setStatusMessage('New Game?');
+	   setContButton('newgame+');
+	}
+	else {
+		setStatusMessage('Waiting for the dealer...');
+	}
+};
+
+function newGame(){
+	if(gamet && gamet.inputEnable) {
+		setContButton('empty');
+		setStatusMessage("Waiting for an answer...");
+		gamet.newGameProposal = true;
+		sendMsg('newGame', null);
+	} else {
+		setStatusMessage("Not Allowed!");
+	}
+};
+
+function exitGame() {
+   	sendStatus('gameClosed');
+	sendStatus('notPlaying');
 
 	// modified by Polito
 	// in order to not exit from the app but just from the game
 
 	//location.reload();
 
-	// vars inizialization
-	kidsinfocusUsers = new Array();
-	engaged = '';
-	useMyDeck = false;
-	oName = "";
-
-	// display empty page
-	leftbox = '<p class="header">Your online contacts:</p><ul id="onlineContacts"></ul>';
-	rightbox = '<p class="header">Your invitations:</p><ul id="liveInvitations"></ul>';
-	document.getElementById('leftbox').innerHTML = leftbox;
-	document.getElementById('rightbox').innerHTML = rightbox;
+	resetApp();
 	gameClosed();
 
 	//if i'm not invisible i send the event login, showing my presence
-	if(!invisible)
-	{
-		callback = {};
-		ev = eventAPIToUse.createWebinosEvent('login');
-		evLoad = {};
-		evLoad.type = 'login';
-		evLoad.user = myName;
-		ev.payload = evLoad;
-		ev.dispatchWebinosEvent(callback);
+	if(!kif.invisible) {
+		sendStatus('login');
 	}
 
 	// end of Polito modifications
 };
 
-//get the index to set the current color settings in the dropdown list
-function getColorIndex ( obj )
-{
-var sc;
-switch(obj)
-	{
-		case 'black':	 sc = 0;
-						break;
-		case 'red':		 sc = 1;
-						break;
-		case 'green': 	 sc = 2;
-						break;
-		case 'blue': 	 sc = 3;
-						break;
-	}
-	return sc;
+function resetApp() {
+	//var reset
+	kif.users = [];
+	kif.engaged = '';
+	kif.useMyDeck = false;
+	kif.oName = "";
 
-};
+	//reset cards and buttons
+	switchUICard("1", "b", "");
+	switchUICard("2", "b", "");
+	setContButton('empty');
+	kifElements.newElem.className = "button2";
+	kifElements.endElem.className = "button2";
 
-//get the index to set the current font family settings in the dropdown list
-function getFamilyIndex ( obj )
-{
-var sf;
+	//reset contacts
+	kifElements.onlineContacts.innerHTML = '';
+	kifElements.liveInvitations.innerHTML = '';
 
-	switch(obj)
-	{
-		case 'Standard':sf = 0;
-						break;
-		case 'ANaRcHy':	sf = 1;
-						break;
-	}
-	return sf;
-};
-
-//get the index to set the current font size settings in the dropdown list
-function getSizeIndex ( obj )
-{
-var ss;
-
-	switch(obj)
-	{
-		case '100%':	ss = 0;
-						break;
-		case '120%':	ss = 1;
-						break;
-		case '150%': 	ss = 2;
-						break;
-	}
-	return ss;
-};
-
-//loads the settings UI
-function settings()
-{
-	sett = '';
-   sett += '<div class="box"><div class="group"><p class="header">Chat Settings:</p><p class="options">Font Color: ';
-	sett += '<select id="mcolor" name="color"><option value="black">Black</option><option value="red">Red</option><option value="green">Green</option><option value="blue">Blue</option></select></p>';
-   sett += '<p class="options">Font Style: ';
-	sett += '<select id="mfamily" name="style"><option value="sans-serif">Dafault</option><option value="ANaRcHy">ANaRcHy</option></select></p>';
-   sett += '<p class="options">Font Size: ';
-	sett += '<select id="msize" name="size"><option value="100%">100%</option><option value="120%">120%</option><option value="150%">150%</option></select></p></div>';
-	sett += '<div class="group"><p class="header">Opponent Chat:</p><p class="options">Font Color: ';
-	sett += '<select id="ocolor" name="color"><option value="black">Black</option><option value="red">Red</option><option value="green">Green</option><option value="blue">Blue</option></select></p>';
-   sett += '<p class="options">Font Style: ';
-	sett += '<select id="ofamily" name="style"><option value="sans-serif">Dafault</option><option value="ANaRcHy">ANaRcHy</option></select></p>';
-   sett += '<p class="options">Font Size: ';
-	sett += '<select id="osize" name="size"><option value="100%">100%</option><option value="120%">120%</option><option value="150%">150%</option></select></p></div>';
-
-   sett += '<div class="group"><p class="header">Policy Settings: </p><p class="options">Status: ';
-   sett += '<select id="mstatus" name="status"><option value="available">Available</option><option value="offline">Invisible</option></select></p></div>';
-   sett += '<div class="group"><a class="button red" onclick="cancelSettings();">Cancel</a>';
-   sett += '<a class="button" onclick="saveSettings();">Save</a></div></div>';
-
-	document.getElementById("sett").innerHTML = sett;
-
-	//load previous settings in the dropdown lists
-	document.getElementById("mcolor").selectedIndex = getColorIndex(document.getElementById("chatTx").style.color);
-	document.getElementById("mfamily").selectedIndex = getFamilyIndex(document.getElementById("chatTx").style.fontFamily);
-	document.getElementById("msize").selectedIndex = getSizeIndex(document.getElementById("chatTx").style.fontSize);
-	document.getElementById("ocolor").selectedIndex = getColorIndex(opponentSettings.color);
-	document.getElementById("ofamily").selectedIndex = getFamilyIndex(opponentSettings.family);
-	document.getElementById("osize").selectedIndex = getSizeIndex(opponentSettings.size);
-	if(invisible)
-		document.getElementById("mstatus").selectedIndex = 1;
-
-	document.getElementById("sett").style.display = 'block';
-	document.getElementById("game").style.display = 'none';
-};
-
-function saveSettings()
-{
-	mfc = document.getElementById("mcolor");
-	document.getElementById("chatTx").style.color = mfc.options[mfc.selectedIndex].value;
-	mff = document.getElementById("mfamily");
-	document.getElementById("chatTx").style.fontFamily = mff.options[mff.selectedIndex].value;
-	mfs = document.getElementById("msize");
-	document.getElementById("chatTx").style.fontSize = mfs.options[mfs.selectedIndex].value;
-
-	ofc = document.getElementById("ocolor");
-	opponentSettings.color = ofc.options[ofc.selectedIndex].value;
-	off = document.getElementById("ofamily");
-	opponentSettings.family = off.options[off.selectedIndex].value;
-	ofs = document.getElementById("osize");
-	opponentSettings.size = ofs.options[ofs.selectedIndex].value;
-
-	mst = document.getElementById("mstatus");
-	kidsinfocusUsers[myName] = mst.options[mst.selectedIndex].value;
-
-	if(kidsinfocusUsers[myName] == 'offline')
-	{
-		invisible = true;
-		var callback = {};
-		var ev = eventAPIToUse.createWebinosEvent('logout');
-		var evLoad = {};
-		evLoad.type = 'logout';
-		evLoad.user = myName;
-		evLoad.status = engaged;
-		ev.payload = evLoad;
-		ev.dispatchWebinosEvent(callback);
-	}
-	else
-	{
-		invisible = false;
-		var callback = {};
-		var ev = eventAPIToUse.createWebinosEvent('online');
-		var evLoad = {};
-		evLoad.type = 'online';
-		evLoad.status = engaged;
-		evLoad.user = myName;
-		ev.payload = evLoad;
-		ev.dispatchWebinosEvent(callback);
-	}
-
-	document.getElementById("sett").innerHTML = '';
-	document.getElementById("game").style.display = 'block';
-	document.getElementById("sett").style.display = 'none';
-
-	//scroll down the chat box
-	var objDiv = document.getElementById("chatBox");
-	objDiv.scrollTop = objDiv.scrollHeight;
-};
-
-function cancelSettings()
-{
-	document.getElementById("sett").innerHTML = '';
-	document.getElementById("game").style.display = 'block';
-	document.getElementById("sett").style.display = 'none';
-
-	//scroll down the chat box
-	var objDiv = document.getElementById("chatBox");
-	objDiv.scrollTop = objDiv.scrollHeight;
-};
-
-function gameClosed()
-{
-	document.getElementById("home").style.display = 'block';
-	document.getElementById("game").style.display = 'none';
-};
-
-function anotherGame()
-{
-	if(useMyDeck)
-	{
-   document.getElementById("status-text").innerHTML = 'New Game?';
-   document.getElementById("status-text").removeAttribute('class');
-   document.getElementById("cont-button").innerHTML = '<a class="button" onClick="newGameAccepted(false);">Yes</a><a class="button red" onClick="exitGame();">No</a>';
-	}
-	else
-		document.getElementById("status-text").innerHTML = 'Waiting for the dealer...';
-};
-
-/**
- *	Proposes to start a new game
- */
-
-function newGame(){
-	if(gamet.inputEnable)
-	{
-		document.getElementById("cont-button").innerHTML = '';
-		document.getElementById("status-text").innerHTML = "Waiting for an answer...";
-		gamet.newGameProposal = true;
-		sendMsg('newGame', null);
-	}
-	else
-		document.getElementById("status-text").innerHTML = "Not Allowed!";
-};
-
-var decks;
-var cardData;
-var opponentSettings = {};
-var invisible = false;
-// Andrea's module ends here
+	//reset chat history
+	kifElements.chatBox.innerHTML = '';
+}
 
 // End of file.
