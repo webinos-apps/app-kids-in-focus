@@ -227,14 +227,14 @@ ready(function() {
 	document.getElementById("savesettings").onclick = function() {saveSettings();};
 	document.getElementById("popunlock").onclick = function() {unlockGame(); return false;};
 	document.getElementById("popcancel").onclick = function() {closePopup(); return false;};
-
-
 });
+
 
 window.onbeforeunload = function(){ //that's probably unreliable
    	sendStatus('logout');
    	sendStatus('gameClosed');
 };
+
 
 function nameInput(listenerID) {
 	kif.myName = prompt("please, insert your name");
@@ -307,7 +307,7 @@ var start = function() {
 			if (kif.engaged != event.payload.user) {
 				removeContact(event.payload.user);
 			} else {
-				//TODO why it's like that, with loop
+				//TODO check why it's like that, with a loop, instead of a remove
 				kifElements.onlineContacts.innerHTML = '';
 				for (var user in kif.users) {
 					if (kif.users[user] !== 'offline') {
