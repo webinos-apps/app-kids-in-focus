@@ -14,12 +14,12 @@
 	limitations under the License.
  */
 /*
- * kidsinfocus.js
+ * kif.js
  *
  * The app Kids in Focus WRT side.
  *
  * Katarzyna Włodarska, Wei Guo, Andrea Longo, Alexander Futasz, Michał T. Kozak
- * 12-10-2012
+ * 20-12-2012
  */
 
 
