@@ -1,27 +1,36 @@
-/*
-	This file is part of webinos project.
-
-	Licensed under the Apache License, Version 2.0 (the "License");
-	you may not use this file except in compliance with the License.
-	You may obtain a copy of the License at
-
-	http://www.apache.org/licenses/LICENSE-2.0
-
-	Unless required by applicable law or agreed to in writing, software
-	distributed under the License is distributed on an "AS IS" BASIS,
-	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	See the License for the specific language governing permissions and
-	limitations under the License.
- */
-/*
- * kif.js
- *
- * The app Kids in Focus WRT side.
- *
- * Katarzyna Włodarska, Wei Guo, Andrea Longo, Alexander Futasz, Michał T. Kozak
- * 20-12-2012
- */
-
+/******************************************************************************
+* Code contributed to the webinos project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+* 
+*     http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+* 
+* Copyright 2012-2013
+*   Antenna Software,
+*   Samsung R&D Institute UK,
+*   University of Catania
+*******************************************************************************
+* app-kids-in-focus/kif.js
+* 
+* The app Kids in Focus WRT side.
+* 
+* Authors:
+*   Katarzyna Włodarska,
+*   Michał T. Kozak,
+*   Wei Guo,
+*   Andrea Longo,
+*   Alexander Futasz
+* 
+* Last update: 28-01-2013
+******************************************************************************/
 
 /* GLOBALS */
 
@@ -49,6 +58,7 @@ kif.settings.opponent.fontSize = kif.settings.mine.fontSize = kif.settings.prede
 
 kif.invisible = false;
 
+var eventAPIToUse = null;
 
 /* GENERAL USE functions */
 
@@ -142,35 +152,64 @@ function sendInvitation(type, inviter, invitee) {
 	};
 
 	// Call this to register your DOM ready listener function
-	ready = function(listener) {
+	ready = function (listener) {
 		readyListener.push(listener);
 	};
 })();
 
 
 // function added by Polito
-// this is a workaround. In the future, in multi-PZH scenarios, the plan is to obtain the userID from the platform.
-// However, the option to change the userID obtained could be kept, keeping the following mechanism as well.
-ready(function() {
-	webinos.ServiceDiscovery.findServices(new ServiceType('http://webinos.org/api/events'),
-		{
-		onFound: function(service){
-			eventAPIToUse = service;
-			kif.unavailableNames = [];
-			kif.myName = webinos.messageHandler.getOwnId();
+// this is a workaround. In the future, in multi-PZH scenarios, the plan is to
+// obtain the userID from the platform. However, the option to change the
+// userID obtained could be kept, keeping the following mechanism as well.
+ready(function () {
+    var findHandle = webinos.ServiceDiscovery.findServices(
+            {api: 'http://webinos.org/api/events'},
+            {
+                onFound: onEventsApiFound,
+                onError: function (error) {
+                    // error is the DOMError.
+                    switch (error.name) {
+                    case 'TimeoutError':
+                        alert('Events API not found. Kids in Focus cannot run without Events API.');
+                        break;
+                    case 'SecurityError':
+                        break;
+                    case 'AbortError':
+                        break;
+                    default:
+                        console.log('Unknown WP DOMError returned by finding services Events API.');
+                    }
+                },
+                onLost: function () {
+                    // TODO Implement it when WP implements this. 
+                }
+            },
+            {timeout: 5000} // In millisecond.
+    );
+    
+    function onEventsApiFound(eventsApiService) {
+        if (typeof findHandle !== 'undefined' && findHandle != null) {
+            // Abort the asynchronous discovery. We choose only the
+            // first returned Events API.
+            findHandle.cancel();
+            delete findHandle;
 
-			var listenerID = eventAPIToUse.addWebinosEventListener(function(event){
-				if (event.payload.type === 'nameResponse') {
-					kif.unavailableNames.push(event.payload.user);
-				}
-			});
+            eventAPIToUse = eventsApiService;
+            kif.unavailableNames = [];
+            kif.myName = webinos.messageHandler.getOwnId();
 
-			sendStatus('nameQuery');
-
-			setTimeout(function() {nameInput(listenerID)}, 3000); //TODO check why there's a timeout here
-		}
-	});
-
+            var listenerID = eventAPIToUse.addWebinosEventListener(function(event){
+                if (event.payload.type === 'nameResponse') {
+                    kif.unavailableNames.push(event.payload.user);
+                }
+            });
+            sendStatus('nameQuery');
+            setTimeout(function(){nameInput(listenerID);}, 1000);
+            // TODO check why there's a timeout here
+        }
+    }
+    
 	//rip out of dom elements, that we will frequently use later
 	kifElements.status = document.getElementById("status-text");
 	kifElements.contButton = document.getElementById("cont-button");
@@ -210,8 +249,8 @@ ready(function() {
 	kifElements.card1attributes = document.getElementById('cardAttributes1');
 	kifElements.card2attributes = document.getElementById('cardAttributes2');
 	kifElements.cardContainer2 = document.getElementById('cardcontainer2');
-	kifElements.myCardsNo = document.getElementById("myCardsNo")
-	kifElements.opCardsNo = document.getElementById("opCardsNo")
+	kifElements.myCardsNo = document.getElementById("myCardsNo");
+	kifElements.opCardsNo = document.getElementById("opCardsNo");
 
 	//set initial onclick actions
 	kifElements.textButton.onclick = function() {showTextChat();};
@@ -221,7 +260,7 @@ ready(function() {
 	kifElements.newButton.onclick = function() {newGame();};
 	kifElements.chatButton.onclick = function() {sendChat();};
 
-	kifElements.chatInput.onkeypress = function() {if (event.keyCode==13) sendChat()};
+	kifElements.chatInput.onkeypress = function() {if (event.keyCode==13) sendChat();};
 
 	document.getElementById("cancelsettings").onclick = function() {cancelSettings();};
 	document.getElementById("savesettings").onclick = function() {saveSettings();};
@@ -251,8 +290,7 @@ function nameInput(listenerID) {
 	} else {
 		alert('username is missing');
 	}
-};
-
+}
 
 // function modified by Polito
 // this is the former ready function, renamed to start and called from the current ready function
