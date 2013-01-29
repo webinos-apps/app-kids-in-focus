@@ -2,11 +2,11 @@
 <widget xmlns       = "http://www.w3.org/ns/widgets"
         id          = "http://apps.webinos.org/app-kids-in-focus"
         version     = "0.0.2"
-        height      = "768"
-        width       = "1024"
+        height      = "480"
+        width       = "800"
         viewmodes   = "fullscreen">
  
-  <name short="Kids in Foucs">
+  <name short="Kids in Focus">
     webinos proof of concept application Kids in Focus
   </name>
 

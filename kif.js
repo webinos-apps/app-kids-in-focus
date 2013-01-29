@@ -29,7 +29,7 @@
 *   Andrea Longo,
 *   Alexander Futasz
 * 
-* Last update: 28-01-2013
+* Last update: 29-01-2013
 ******************************************************************************/
 
 /* GLOBALS */
@@ -174,11 +174,13 @@ ready(function () {
                         alert('Events API not found. Kids in Focus cannot run without Events API.');
                         break;
                     case 'SecurityError':
+                        console.log('Received SecurityError. Discovery probably is denied by remote.');
                         break;
                     case 'AbortError':
+                        console.log('Received AbortError. Discovery probably is cancelled.');
                         break;
                     default:
-                        console.log('Unknown WP DOMError returned by finding services Events API.');
+                        console.warn('Unknown WP DOMError returned by finding services Events API.');
                     }
                 },
                 onLost: function () {
@@ -190,16 +192,16 @@ ready(function () {
     
     function onEventsApiFound(eventsApiService) {
         if (typeof findHandle !== 'undefined' && findHandle != null) {
-            // Abort the asynchronous discovery. We choose only the
-            // first returned Events API.
+            // Abort the asynchronous discovery. Only choose the first returned
+            // Events API.
             findHandle.cancel();
-            delete findHandle;
+            findHandle = undefined;
 
             eventAPIToUse = eventsApiService;
             kif.unavailableNames = [];
             kif.myName = webinos.messageHandler.getOwnId();
 
-            var listenerID = eventAPIToUse.addWebinosEventListener(function(event){
+            var listenerID = eventAPIToUse.addWebinosEventListener(function (event) {
                 if (event.payload.type === 'nameResponse') {
                     kif.unavailableNames.push(event.payload.user);
                 }
@@ -207,6 +209,8 @@ ready(function () {
             sendStatus('nameQuery');
             setTimeout(function(){nameInput(listenerID);}, 1000);
             // TODO check why there's a timeout here
+        } else {
+            console.log('Received Events API service for an invalid discovery. Ignored.');
         }
     }
     
