@@ -13,30 +13,22 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 * 
-* Copyright 2012-2013
-*   Antenna Software,
-*   Samsung R&D Institute UK,
-*   University of Catania
+* Copyright 2012-2013 Samsung R&D Institute UK, Antenna Software 
 *******************************************************************************
 * app-kids-in-focus/kif.js
 * 
 * The app Kids in Focus WRT side.
 * 
-* Authors:
-*   Katarzyna Włodarska,
-*   Michał T. Kozak,
-*   Wei Guo,
-*   Andrea Longo,
-*   Alexander Futasz
-* 
-* Last update: 29-01-2013
+* Authors: Wei Guo, Michał T. Kozak
 ******************************************************************************/
 
 /* GLOBALS */
 
+// this will hold other variables to avoid global namespace pollution
+var kif = {};
 
-var kif = {}; //this will hold other variables to avoid global namespace pollution
-var kifElements = {}; //this will hold html elements so we can avoid excessive DOM search
+// this will hold html elements so we can avoid excessive DOM search
+var kifElements = {};
 
 // Set initial values
 kif.users = [];
@@ -44,14 +36,14 @@ kif.useMyDeck = false;
 
 kif.settings = {};
 kif.settings.predefined = {
-	color: "black",
-	fontFamily: "sans-serif",
-	fontSize: "100%"
+    color: "black",
+    fontFamily: "sans-serif",
+    fontSize: "100%"
 };
 kif.settings.opponent = {};
 kif.settings.mine = {};
-//we can't copy the whole object, because they would be tied together;
-//possible TODO: add object cloning function (but right now this is enough)
+// we can't copy the whole object, because they would be tied together;
+// possible TODO: add object cloning function (but right now this is enough)
 kif.settings.opponent.color = kif.settings.mine.color = kif.settings.predefined.color;
 kif.settings.opponent.fontFamily = kif.settings.mine.fontFamily = kif.settings.predefined.fontFamily;
 kif.settings.opponent.fontSize = kif.settings.mine.fontSize = kif.settings.predefined.fontSize;
@@ -81,7 +73,6 @@ function removeClass(ele,cls) {
 		}
 	}
 };
-
 
 /* functions creating and dispatching WEBINOS EVENTS */
 
@@ -200,7 +191,11 @@ ready(function () {
             eventAPIToUse = eventsApiService;
             kif.unavailableNames = [];
             kif.myName = webinos.messageHandler.getOwnId();
-
+            
+            //alert('my ownId is ' + kif.myName);
+            
+            //alert('my pzh id is ' + webinos.session.getPZHId());
+            
             var listenerID = eventAPIToUse.addWebinosEventListener(function (event) {
                 if (event.payload.type === 'nameResponse') {
                     kif.unavailableNames.push(event.payload.user);
